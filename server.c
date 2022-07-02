@@ -35,33 +35,43 @@ int main(void)
     return 1;
   }
 
-  int bind_status =
-      bind(listening_socket_fd, gai_res->ai_addr, gai_res->ai_addrlen);
-  if (bind_status == -1)
+  int yes = 1;
+  // Allows the reuse of this port, avoiding 'address already in use' error in bind()
+  if (setsockopt(listening_socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes) == -1)
   {
+    perror("error w/ setsockopt: ");
+    exit(1);
+  }
+
+  // int bind_status =
+  // bind(listening_socket_fd, gai_res->ai_addr, gai_res->ai_addrlen);
+  if (bind(listening_socket_fd, gai_res->ai_addr, gai_res->ai_addrlen) == -1)
+  {
+    close(listening_socket_fd);
     freeaddrinfo(gai_res);
     perror("error w/ bind:");
     return 1;
   }
 
+  freeaddrinfo(gai_res);
+
   int listen_status = listen(listening_socket_fd, BACKLOG_COUNT);
   if (listen_status == -1)
   {
-    freeaddrinfo(gai_res);
     perror("error w/ listen:");
     return 1;
   }
 
+  int incoming_fd;
   while (1)
   {
     struct sockaddr_storage incoming_addr;
     socklen_t incoming_addr_size = sizeof incoming_addr;
-    int incoming_fd =
+    incoming_fd =
         accept(listening_socket_fd, (struct sockaddr *)&incoming_addr,
                &incoming_addr_size);
     if (incoming_fd == -1)
     {
-      freeaddrinfo(gai_res);
       perror("error w/ accept:");
       return 1;
     }
@@ -78,7 +88,6 @@ int main(void)
       ssize_t bytes_sent = send(incoming_fd, msg, strlen(msg), 0);
       if (bytes_sent == -1)
       {
-        freeaddrinfo(gai_res);
         perror("error w/ send:");
         return 1;
       }
@@ -89,6 +98,5 @@ int main(void)
     close(incoming_fd);
   }
 
-  freeaddrinfo(gai_res);
   return 0;
 }
