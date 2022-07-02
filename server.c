@@ -90,14 +90,16 @@ int main(void)
         return 1;
       }
 
-      const size_t req_buffer_length = sizeof(char) * 1000;
+      const size_t req_buffer_length = sizeof(char) * 100;
       char *request_buffer = malloc(req_buffer_length);
-      int bytes_received = recv(incoming_fd, request_buffer, req_buffer_length, 0);
+      ssize_t bytes_received = recv(incoming_fd, request_buffer, req_buffer_length-1, 0);
       if (bytes_received == -1)
       {
+        free(request_buffer);
         perror("error w/ recv:");
         return 1;
       }
+      request_buffer[bytes_received] = '\0';
       printf("%s\n", request_buffer);
       free(request_buffer);
       close(incoming_fd);
