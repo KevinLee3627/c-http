@@ -81,17 +81,8 @@ int main(void)
     if (!fork())
     {
       close(listening_socket_fd);
-      printf("Closed listening socket\n");
-      char *msg = "what's up?\n";
-      ssize_t bytes_sent = send(incoming_fd, msg, strlen(msg), 0);
-      if (bytes_sent == -1)
-      {
-        perror("error w/ send:");
-        return 1;
-      }
-
       // Allocate an array of a certain length
-      const size_t req_buffer_length = sizeof(char) * 100;
+      const size_t req_buffer_length = sizeof(char) * 800;
       char *request_buffer = malloc(req_buffer_length);
       ssize_t bytes_received = recv(incoming_fd, request_buffer, req_buffer_length - 1, 0);
 
@@ -107,16 +98,16 @@ int main(void)
         free(request_buffer);
         printf("Connection closed by peer.\n");
       }
-
       // Set the last character to null terminator so we can print
       // If 50 bytes received, then buffer[0...49] have been used, thus we set buffer[50]
       // to the null character!
       request_buffer[bytes_received] = '\0';
       printf("%s\n", request_buffer);
+      
       free(request_buffer);
+
       close(incoming_fd);
-      printf("closed incoming socket\n");
-      exit(0);
+      exit(0); // Exits the forked child process
     }
     close(incoming_fd);
   }
