@@ -11,6 +11,8 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "parse_request.h"
+
 #define MY_PORT "8443"
 #define BACKLOG_COUNT 20
 
@@ -101,9 +103,8 @@ int main(void)
       // Set the last character to null terminator so we can print
       // If 50 bytes received, then buffer[0...49] have been used, thus we set buffer[50]
       // to the null character!
-      request_buffer[bytes_received] = '\0';
-      printf("%s\n", request_buffer);
-      
+      parse_request(request_buffer, bytes_received);
+
       free(request_buffer);
 
       close(incoming_fd);
