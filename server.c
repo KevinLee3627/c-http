@@ -66,26 +66,28 @@ int main(void)
       return 1;
     }
 
-    char *ipstr = malloc(sizeof(char) * (INET6_ADDRSTRLEN + 1));
+    char ipstr[INET6_ADDRSTRLEN + 1];
     inet_ntop(incoming_addr.ss_family, (struct sockaddr *)&incoming_addr, ipstr, sizeof(char) * (INET6_ADDRSTRLEN) + 1);
     printf("serve: Connection received from %s", ipstr);
 
     if (!fork())
     {
       close(listening_socket_fd);
+      printf("Closed listening socket");
+      char *msg = "what's up?";
+      ssize_t bytes_sent = send(incoming_fd, msg, strlen(msg), 0);
+      if (bytes_sent == -1)
+      {
+        freeaddrinfo(gai_res);
+        perror("error w/ send:");
+        return 1;
+      }
       close(incoming_fd);
+      printf("closed incoming socket");
       exit(0);
     }
+    close(incoming_fd);
   }
-
-  // char *msg = "what's up?";
-  // ssize_t bytes_sent = send(incoming_fd, msg, strlen(msg), 0);
-  // if (bytes_sent == -1)
-  // {
-  //   freeaddrinfo(gai_res);
-  //   perror("error w/ accept:");
-  //   return 1;
-  // }
 
   freeaddrinfo(gai_res);
   return 0;
