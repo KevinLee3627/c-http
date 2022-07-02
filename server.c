@@ -1,11 +1,15 @@
 #include <arpa/inet.h>
 #include <errno.h>
+#include <netinet/in.h>
 #include <netdb.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #define MY_PORT "8443"
 #define BACKLOG_COUNT 20
@@ -48,18 +52,41 @@ int main(void)
     return 1;
   }
 
-  struct sockaddr_storage incoming_addr;
-  socklen_t incoming_addr_size = sizeof incoming_addr;
-  int incoming_fd =
-      accept(listening_socket_fd, (struct sockaddr *)&incoming_addr,
-             &incoming_addr_size);
-  if (incoming_fd == -1)
+  while (1)
   {
-    freeaddrinfo(gai_res);
-    perror("error w/ accept:");
-    return 1;
-  }
-  freeaddrinfo(gai_res);
+    struct sockaddr_storage incoming_addr;
+    socklen_t incoming_addr_size = sizeof incoming_addr;
+    int incoming_fd =
+        accept(listening_socket_fd, (struct sockaddr *)&incoming_addr,
+               &incoming_addr_size);
+    if (incoming_fd == -1)
+    {
+      freeaddrinfo(gai_res);
+      perror("error w/ accept:");
+      return 1;
+    }
 
+    char *ipstr = malloc(sizeof(char) * (INET6_ADDRSTRLEN + 1));
+    inet_ntop(incoming_addr.ss_family, (struct sockaddr *)&incoming_addr, ipstr, sizeof(char) * (INET6_ADDRSTRLEN) + 1);
+    printf("serve: Connection received from %s", ipstr);
+
+    if (!fork())
+    {
+      close(listening_socket_fd);
+      close(incoming_fd);
+      exit(0);
+    }
+  }
+
+  // char *msg = "what's up?";
+  // ssize_t bytes_sent = send(incoming_fd, msg, strlen(msg), 0);
+  // if (bytes_sent == -1)
+  // {
+  //   freeaddrinfo(gai_res);
+  //   perror("error w/ accept:");
+  //   return 1;
+  // }
+
+  freeaddrinfo(gai_res);
   return 0;
 }
