@@ -35,16 +35,14 @@ int main(void)
     return 1;
   }
 
-  int yes = 1;
   // Allows the reuse of this port, avoiding 'address already in use' error in bind()
+  int yes = 1;
   if (setsockopt(listening_socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes) == -1)
   {
     perror("error w/ setsockopt: ");
     exit(1);
   }
 
-  // int bind_status =
-  // bind(listening_socket_fd, gai_res->ai_addr, gai_res->ai_addrlen);
   if (bind(listening_socket_fd, gai_res->ai_addr, gai_res->ai_addrlen) == -1)
   {
     close(listening_socket_fd);
@@ -91,6 +89,16 @@ int main(void)
         perror("error w/ send:");
         return 1;
       }
+
+      const size_t request_length = sizeof(char) * 4000;
+      char *request_buffer = malloc(request_length);
+      if (recv(incoming_fd, request_buffer, request_length, 0) == -1)
+      {
+        perror("error w/ recv:");
+        return 1;
+      }
+      printf("%s\n", request_buffer);
+      free(request_buffer);
       close(incoming_fd);
       printf("closed incoming socket\n");
       exit(0);
