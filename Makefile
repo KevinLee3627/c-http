@@ -3,10 +3,7 @@ CFLAGS = -Wall -Wextra -Werror -Wshadow -Wdouble-promotion -fno-common -Wconvers
 TARGET = server
 
 $(TARGET): whatever.o
-	@$(CC) $(CFLAGS) -g whatever.o -o ./bin/server
-
-$(TARGET).o: server.c
-	gcc -c server.c -o whatever.o
+	@$(CC) $(CFLAGS) -g server.c -o ./bin/server
 
 clean:
 	rm *.o
