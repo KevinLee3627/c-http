@@ -90,15 +90,27 @@ int main(void)
         return 1;
       }
 
+      // Allocate an array of a certain length
       const size_t req_buffer_length = sizeof(char) * 100;
       char *request_buffer = malloc(req_buffer_length);
-      ssize_t bytes_received = recv(incoming_fd, request_buffer, req_buffer_length-1, 0);
+      ssize_t bytes_received = recv(incoming_fd, request_buffer, req_buffer_length - 1, 0);
+
       if (bytes_received == -1)
       {
         free(request_buffer);
         perror("error w/ recv:");
         return 1;
       }
+
+      if (bytes_received == 0)
+      {
+        free(request_buffer);
+        printf("Connection closed by peer.\n");
+      }
+
+      // Set the last character to null terminator so we can print
+      // If 50 bytes received, then buffer[0...49] have been used, thus we set buffer[50]
+      // to the null character!
       request_buffer[bytes_received] = '\0';
       printf("%s\n", request_buffer);
       free(request_buffer);
