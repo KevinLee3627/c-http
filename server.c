@@ -90,9 +90,10 @@ int main(void)
         return 1;
       }
 
-      const size_t request_length = sizeof(char) * 4000;
-      char *request_buffer = malloc(request_length);
-      if (recv(incoming_fd, request_buffer, request_length, 0) == -1)
+      const size_t req_buffer_length = sizeof(char) * 1000;
+      char *request_buffer = malloc(req_buffer_length);
+      int bytes_received = recv(incoming_fd, request_buffer, req_buffer_length, 0);
+      if (bytes_received == -1)
       {
         perror("error w/ recv:");
         return 1;
