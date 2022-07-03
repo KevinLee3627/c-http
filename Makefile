@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -Wshadow -Wdouble-promotion -fno-common -Wconversion  -fsanitize=address
+CFLAGS = -Wall -Wextra -Werror -Wshadow -Wdouble-promotion -fno-common -Wconversion -fsanitize=address -fno-omit-frame-pointer
 
 SRCDIR = src
 OBJDIR = $(SRCDIR)/obj
