@@ -1,20 +1,30 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror -Wshadow -Wdouble-promotion -fno-common -Wconversion  -fsanitize=address
-OBJFILES = server.o parse_request.o
-DEPS = parse_request.h
+
+SRCDIR = src
+OBJDIR = $(SRCDIR)/obj
+
+_DEPS = parse_request.h
+DEPS = $(patsubst %,$(SRCDIR)/%,$(_DEPS))
+
+_OBJFILES = server.o parse_request.o
+OBJFILES = $(patsubst %,$(OBJDIR)/%,$(_OBJFILES))
+
+TARGETDIR = bin
 TARGET = server
 
 all: $(TARGET)
 
-# $(TARGET): $(OBJFILES)
-# @$(CC) $(CFLAGS) -g $(TARGET).c -o ./bin/$(TARGET) $(OBJFILES)
-#$(TARGET): $(OBJFILES)
-#	$(CC) $(CFLAGS) -o ./bin/$(TARGET) $(OBJFILES)
-%.o: %.c $(DEPS)
+$(OBJDIR)/%.o: $(SRCDIR)/%.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 $(TARGET): $(OBJFILES)
-	$(CC) -o $@ $^ $(CFLAGS)
+	$(CC) -o $(TARGETDIR)/$@ $^ $(CFLAGS)
 
+.PHONY: clean
 clean:
-	rm *.o
+	rm $(OBJDIR)/*.o
+
+# Thank you to...
+#	https://cs.colby.edu/maxwell/courses/tutorials/maketutor/
+# https://stackoverflow.com/questions/54854128/use-of-o-c-in-makefile
