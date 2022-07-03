@@ -10,8 +10,16 @@ void send_response(int incoming_fd, char *path)
   size_t path_length = strlen(path) + 1;
   char file_name[path_length + 13];
   snprintf(file_name, strlen(path) + 1 + 13, "./pages%s.html", path);
-  printf("%s\n", file_name);
+
   FILE *html_file = fopen(file_name, "r");
+  if (html_file == NULL)
+  {
+    printf("File not found");
+    char *response = "HTTP/1.0 404 Not Found";
+    send(incoming_fd, response, strlen(response), 0);
+    return;
+  }
+
   fseek(html_file, 0, SEEK_END);
   long int file_size = ftell(html_file);
   // move back to start to start reading
@@ -37,7 +45,6 @@ void send_response(int incoming_fd, char *path)
   char response[response_size];
   printf("response_size: %li\nstatus_line_size: %i | content_length_size: %i | content_type_size: %i | file size: %li\n", response_size, status_line_size, content_length_header_size, content_type_header_size, file_size);
   snprintf(response, (size_t)response_size, "%s%s%s\r\n%s", status_line, content_length_header, content_type_header, file_data);
-  printf("%s", response);
 
   // Send response
   send(incoming_fd, response, strlen(response), 0);

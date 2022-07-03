@@ -143,7 +143,8 @@ int main(int argc, char **argv)
       char *method;
       char *path;
       parse_request(request_buffer, bytes_received, &method, &path);
-      printf("%s\n", path);
+      printf("request to: %s\n", path);
+
       send_response(incoming_fd, path);
       free(request_buffer);
       free(method);
