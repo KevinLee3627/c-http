@@ -7,8 +7,10 @@
 
 void send_response(int incoming_fd, char *path)
 {
-  char *file_name = NULL;
-  snprintf(file_name, strlen(path) + 1, "./pages/%s.html", path);
+  size_t path_length = strlen(path) + 1;
+  char file_name[path_length + 13];
+  snprintf(file_name, strlen(path) + 1 + 13, "./pages%s.html", path);
+  printf("%s\n", file_name);
   FILE *html_file = fopen(file_name, "r");
   fseek(html_file, 0, SEEK_END);
   long int file_size = ftell(html_file);
