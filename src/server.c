@@ -79,7 +79,6 @@ int main(void)
 
     char ipstr[INET6_ADDRSTRLEN + 1];
     inet_ntop(incoming_addr.ss_family, (struct sockaddr *)&incoming_addr, ipstr, sizeof(char) * (INET6_ADDRSTRLEN) + 1);
-    printf("serve: Connection received from %s\n", ipstr);
 
     if (!fork())
     {
@@ -105,7 +104,6 @@ int main(void)
       // If 50 bytes received, then buffer[0...49] have been used, thus we set buffer[50]
       // to the null character!
       // parse_request(request_buffer, bytes_received);
-      printf("sending response\n");
       send_response(incoming_fd);
       free(request_buffer);
 
