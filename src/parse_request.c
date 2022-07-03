@@ -5,9 +5,6 @@
 
 int parse_request(char *req_buffer, ssize_t req_length, char *method, char *path)
 {
-  // Figure out the method
-  // Figure out where the path starts and ends
-
   // Status line: METHOD PATH HTTP-VERSION\r\n
   req_buffer[req_length] = '\0';
   for (int i = 0; i < req_length; i++)
@@ -17,19 +14,16 @@ int parse_request(char *req_buffer, ssize_t req_length, char *method, char *path
   // Find first space occurence - start to first space occurence = the method
   char *start = &req_buffer[0];
   char *first_space = strstr(start, " ");
-  *method = calloc(1, (size_t)(first_space - start + 1));
+  method = calloc(1, (size_t)(first_space - start + 1));
   memcpy(method, start, (size_t)(first_space - start));
   printf("%s\n", method);
 
   // first_space is a pointer pointing to the actual space - to find the 2nd space,
   // you need to start searching from first_space + 1
   char *second_space = strstr(first_space + 1, " ");
-  *path = calloc(1, (size_t)(second_space - first_space + 1));
+  path = calloc(1, (size_t)(second_space - first_space + 1));
   memcpy(path, first_space + 1, (size_t)(second_space - (first_space + 1)));
   printf("%s\n", path);
-  // Find 2nd space occurence - first_space to 2nd space = path/query
 
-  free(method);
-  free(path);
   return 1;
 }
