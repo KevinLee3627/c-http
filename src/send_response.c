@@ -10,25 +10,27 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-void send_response()
+void send_response(int incoming_fd)
 {
   FILE *html_file = fopen("./pages/index.html", "r");
-  int file_size = fseek(html_file, 0, SEEK_END);
+  fseek(html_file, 0, SEEK_END);
+  long int file_size = ftell(html_file);
   // move back to start to start reading
   fseek(html_file, 0, SEEK_SET);
   char file_data[file_size + 1];
   fread(file_data, sizeof(char) * (size_t)(file_size + 1), 1, html_file); // Throw data into file_data
 
   char *status_line = "HTTP/1.0 200 OK\r\n";
-  size_t status_line_size = sizeof(status_line);
+  int status_line_size = (int)strlen(status_line);
 
-  int header_size = snprintf(NULL, 0, "Content-Length: %i\r\n", file_size) + 1;
+  int header_size = snprintf(NULL, 0, "Content-Length: %li\r\n", file_size);
   char header_content_length[header_size];
-  snprintf(header_content_length, (size_t)header_size, "Content-Length: %i\r\n", file_size);
+  snprintf(header_content_length, (size_t)header_size, "Content-Length: %li\r\n", file_size);
 
-  char *response = NULL;
-  snprintf(response, status_line_size + (size_t)header_size, "%s%s\r\n%s", status_line, header_content_length, file_data);
+  long int response_size = status_line_size + header_size + file_size + 2;
+  char response[response_size];
+  snprintf(response, (size_t)response_size, "%s%s\r\n%s", status_line, header_content_length, file_data);
   printf("%s", response);
-
-  // send(incoming_socket, response, strlen(response), 0);
+  send(incoming_fd, response, strlen(response), 0);
+  return;
 }
