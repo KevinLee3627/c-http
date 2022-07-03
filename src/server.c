@@ -9,19 +9,41 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <ctype.h>
 #include <unistd.h>
 
 #include "parse_request.h"
 #include "send_response.h"
 
-#define MY_PORT "8443"
 #define BACKLOG_COUNT 20
 #define MAX_FORKS 5
 
 int max_forks = MAX_FORKS;
 int current_forks = 0;
-int main(void)
+int main(int argc, char **argv)
 {
+  if (argc != 2)
+  {
+    printf("usage: ./server PORT\n");
+    return 1;
+  }
+
+  char *port = argv[1];
+  // Port cannot have a leading zero
+  if (*port == '0')
+  {
+    printf("Invalid PORT: No leading zeros\n");
+    return 1;
+  }
+  for (char *c = port; *c != '\0'; c++)
+  {
+    if (isdigit(*c) == 0)
+    {
+      printf("Invalid PORT: Must only contain digits\n");
+      return 1;
+    }
+  }
+
   struct addrinfo hints;
   memset(&hints, 0, sizeof hints);
   hints.ai_family = AF_UNSPEC;
@@ -29,7 +51,12 @@ int main(void)
   hints.ai_flags = AI_PASSIVE; // fill in my own IP
 
   struct addrinfo *gai_res = NULL; // getaddrinfo_response
-  getaddrinfo(NULL, MY_PORT, &hints, &gai_res);
+  int gai_status = getaddrinfo(NULL, port, &hints, &gai_res);
+  if (gai_status != 0)
+  {
+    perror("getaddrinfo");
+    return 1;
+  }
 
   // socket() creates a socket and returns the socket file descriptor
   int listening_socket_fd =
@@ -84,6 +111,7 @@ int main(void)
 
     char ipstr[INET6_ADDRSTRLEN + 1];
     inet_ntop(incoming_addr.ss_family, (struct sockaddr *)&incoming_addr, ipstr, sizeof(char) * (INET6_ADDRSTRLEN) + 1);
+    printf("Connection from %s\n", ipstr);
 
     pid_t child_pid = fork();
     if (child_pid < 0)
