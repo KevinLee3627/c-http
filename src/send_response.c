@@ -31,7 +31,6 @@ void send_response(int incoming_fd)
   char *content_type_header = "Content-Type: text/html\r\n";
   int content_type_header_size = (int)strlen(content_type_header);
 
-  printf("Formatting response...\n");
   long int response_size = status_line_size + content_length_header_size + content_type_header_size + file_size + 4;
   char response[response_size];
   snprintf(response, (size_t)response_size, "%s%s%s\r\n%s", status_line, content_length_header, content_type_header, file_data);
