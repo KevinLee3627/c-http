@@ -114,8 +114,8 @@ int main(void)
 
       char *method = NULL;
       char *path = NULL;
-      parse_request(request_buffer, bytes_received);
-      send_response(incoming_fd);
+      parse_request(request_buffer, bytes_received, method, path);
+      send_response(incoming_fd, path);
       free(request_buffer);
 
       close(incoming_fd);

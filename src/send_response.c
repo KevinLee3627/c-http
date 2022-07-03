@@ -5,9 +5,11 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-void send_response(int incoming_fd)
+void send_response(int incoming_fd, char *path)
 {
-  FILE *html_file = fopen("./pages/index.html", "r");
+  char *file_name = NULL;
+  snprintf(file_name, strlen(path) + 1, "./pages/%s.html", path);
+  FILE *html_file = fopen(file_name, "r");
   fseek(html_file, 0, SEEK_END);
   long int file_size = ftell(html_file);
   // move back to start to start reading
