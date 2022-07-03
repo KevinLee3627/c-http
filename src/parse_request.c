@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int parse_request(char *req_buffer, ssize_t req_length, char **method)
+int parse_request(char *req_buffer, ssize_t req_length, char **method, char **path)
 {
   // Status line: METHOD PATH HTTP-VERSION\r\n
   req_buffer[req_length] = '\0';
@@ -24,10 +24,19 @@ int parse_request(char *req_buffer, ssize_t req_length, char **method)
 
   // first_space is a pointer pointing to the actual space - to find the 2nd space,
   // you need to start searching from first_space + 1
-  // char *second_space = strstr(first_space + 1, " ");
-  // path = calloc(1, (size_t)(second_space - first_space + 1));
-  // memcpy(path, first_space + 1, (size_t)(second_space - (first_space + 1)));
-  // printf("%s\n", path);
+  char *second_space = strstr(first_space + 1, " ");
+  if (second_space == NULL)
+  {
+    printf("Invalid request - no HTTP version");
+    return -1;
+  }
+  size_t path_length = second_space - first_space;
+  printf("path_length: %li\n", path_length);
+
+  *path = malloc(path_length);
+  // -1 b/c path_length includes space for null terminator. -1 makes sure we only get the actual chars
+  memcpy(*path, first_space + 1, path_length - 1);
+  (*path)[path_length - 1] = '\0';
 
   return 1;
 }

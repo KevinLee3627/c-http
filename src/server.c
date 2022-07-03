@@ -113,13 +113,13 @@ int main(void)
       }
 
       char *method;
-      // char *path = malloc(sizeof(char) * 20);
-      parse_request(request_buffer, bytes_received, &method);
-      printf("%s\n", method);
+      char *path;
+      parse_request(request_buffer, bytes_received, &method, &path);
+      printf("%s\n", path);
       // send_response(incoming_fd, path);
       free(request_buffer);
       free(method);
-      // free(path);
+      free(path);
 
       close(incoming_fd);
       exit(0); // Exits the forked child process

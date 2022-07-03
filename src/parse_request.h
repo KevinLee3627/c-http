@@ -13,5 +13,5 @@ struct req_details
   char *path;
 };
 
-int parse_request(char *req_buffer, ssize_t req_length, char **method);
+int parse_request(char *req_buffer, ssize_t req_length, char **method, char **path);
 #endif
