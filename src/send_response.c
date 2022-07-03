@@ -7,8 +7,12 @@
 
 void send_response(int incoming_fd, char *path)
 {
+  if (strcmp(path, "/") == 0)
+  {
+    path = "/index";
+  }
   size_t path_length = strlen(path) + 1;
-  char file_name[path_length + 13];
+  char file_name[path_length + 13]; // + 13 is for ./pages .html
   snprintf(file_name, strlen(path) + 1 + 13, "./pages%s.html", path);
 
   FILE *html_file = fopen(file_name, "r");
