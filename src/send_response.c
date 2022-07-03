@@ -14,7 +14,7 @@ void send_response(int incoming_fd, char *path)
   FILE *html_file = fopen(file_name, "r");
   if (html_file == NULL)
   {
-    printf("File not found");
+    printf("File not found\n");
     char *response = "HTTP/1.0 404 Not Found";
     send(incoming_fd, response, strlen(response), 0);
     return;

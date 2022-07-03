@@ -14,6 +14,7 @@ int parse_request(char *req_buffer, ssize_t req_length, char **method, char **pa
   {
     printf("%c", *c);
   }
+  printf("\n");
 
   // Find first space occurence - start to first space occurence = the method
   char *start = status_line_start;
