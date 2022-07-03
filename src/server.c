@@ -16,7 +16,10 @@
 
 #define MY_PORT "8443"
 #define BACKLOG_COUNT 20
+#define MAX_FORKS 5
 
+int max_forks = MAX_FORKS;
+int current_forks = 0;
 int main(void)
 {
   struct addrinfo hints;
@@ -64,10 +67,12 @@ int main(void)
   }
 
   int incoming_fd;
+
+  struct sockaddr_storage incoming_addr;
+  socklen_t incoming_addr_size = sizeof incoming_addr;
+
   while (1)
   {
-    struct sockaddr_storage incoming_addr;
-    socklen_t incoming_addr_size = sizeof incoming_addr;
     incoming_fd =
         accept(listening_socket_fd, (struct sockaddr *)&incoming_addr,
                &incoming_addr_size);
@@ -80,10 +85,14 @@ int main(void)
     char ipstr[INET6_ADDRSTRLEN + 1];
     inet_ntop(incoming_addr.ss_family, (struct sockaddr *)&incoming_addr, ipstr, sizeof(char) * (INET6_ADDRSTRLEN) + 1);
 
-    if (!fork())
+    pid_t child_pid = fork();
+    if (child_pid < 0)
     {
-      close(listening_socket_fd);
-      // Allocate an array of a certain length
+      close(incoming_fd);
+    }
+    else if (child_pid == 0)
+    {
+      // This is the child process
       const size_t req_buffer_length = sizeof(char) * 800;
       char *request_buffer = malloc(req_buffer_length);
       ssize_t bytes_received = recv(incoming_fd, request_buffer, req_buffer_length - 1, 0);
@@ -99,10 +108,9 @@ int main(void)
       {
         free(request_buffer);
         printf("Connection closed by peer.\n");
+        close(incoming_fd);
+        exit(0);
       }
-      // Set the last character to null terminator so we can print
-      // If 50 bytes received, then buffer[0...49] have been used, thus we set buffer[50]
-      // to the null character!
       // parse_request(request_buffer, bytes_received);
       send_response(incoming_fd);
       free(request_buffer);
@@ -110,8 +118,23 @@ int main(void)
       close(incoming_fd);
       exit(0); // Exits the forked child process
     }
-    close(incoming_fd);
+    else
+    {
+      // This is the parent process, no need to care about incoming socket
+      close(incoming_fd);
+      current_forks++;
+    }
+
+    // Delete finished sub processes
+    if (current_forks >= max_forks)
+    {
+      while (waitpid(-1, NULL, WNOHANG) > 0)
+      {
+        current_forks--;
+      }
+    }
   }
+  close(listening_socket_fd);
 
   return 0;
 }
