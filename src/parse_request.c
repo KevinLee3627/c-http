@@ -7,16 +7,18 @@ int parse_request(char *req_buffer, ssize_t req_length, char **method, char **pa
 {
   // Status line: METHOD PATH HTTP-VERSION\r\n
   req_buffer[req_length] = '\0';
-  for (int i = 0; i < req_length; i++)
-  {
-    printf("%c", req_buffer[i]);
-  }
-  // Find first space occurence - start to first space occurence = the method
-  char *start = &req_buffer[0];
-  char *first_space = strstr(start, " ");         // pointer to the first space
-  size_t method_length = first_space - start + 1; // +1 for null terminator
-  printf("method length: %li\n", method_length);
 
+  char *status_line_terminator = strstr(req_buffer, "\r\n");
+  char *status_line_start = &req_buffer[0];
+  for (char *c = status_line_start; c != status_line_terminator; c++)
+  {
+    printf("%c", *c);
+  }
+
+  // Find first space occurence - start to first space occurence = the method
+  char *start = status_line_start;
+  char *first_space = strstr(start, " ");                   // pointer to the first space
+  size_t method_length = (size_t)(first_space - start + 1); // +1 for null terminator
   // Allocate memory, copy the method, then add a null terminator
   *method = malloc(method_length);
   memcpy(*method, start, method_length - 1);
@@ -30,9 +32,7 @@ int parse_request(char *req_buffer, ssize_t req_length, char **method, char **pa
     printf("Invalid request - no HTTP version");
     return -1;
   }
-  size_t path_length = second_space - first_space;
-  printf("path_length: %li\n", path_length);
-
+  size_t path_length = (size_t)(second_space - first_space);
   *path = malloc(path_length);
   // -1 b/c path_length includes space for null terminator. -1 makes sure we only get the actual chars
   memcpy(*path, first_space + 1, path_length - 1);

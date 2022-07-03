@@ -116,7 +116,7 @@ int main(void)
       char *path;
       parse_request(request_buffer, bytes_received, &method, &path);
       printf("%s\n", path);
-      // send_response(incoming_fd, path);
+      send_response(incoming_fd, path);
       free(request_buffer);
       free(method);
       free(path);
