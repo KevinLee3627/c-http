@@ -7,7 +7,7 @@ OBJDIR = $(SRCDIR)/obj
 _DEPS = parse_request.h
 DEPS = $(patsubst %,$(SRCDIR)/%,$(_DEPS))
 
-_OBJFILES = server.o parse_request.o
+_OBJFILES = server.o parse_request.o send_response.o
 OBJFILES = $(patsubst %,$(OBJDIR)/%,$(_OBJFILES))
 
 TARGETDIR = bin
