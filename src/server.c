@@ -111,8 +111,8 @@ int main(void)
         close(incoming_fd);
         exit(0);
       }
-      // parse_request(request_buffer, bytes_received);
-      send_response(incoming_fd);
+      parse_request(request_buffer, bytes_received);
+      // send_response(incoming_fd);
       free(request_buffer);
 
       close(incoming_fd);
