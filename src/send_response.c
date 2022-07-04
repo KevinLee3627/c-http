@@ -20,6 +20,7 @@ void send_response(int incoming_fd, char *path)
   FILE *file = fopen(file_name, "rb");
   if (file == NULL)
   {
+    // TODO: How to generalize send_response so we can easily send the 404 page?
     printf("File not found\n");
     char *response = "HTTP/1.0 404 Not Found";
     send(incoming_fd, response, strlen(response), 0);
@@ -27,9 +28,10 @@ void send_response(int incoming_fd, char *path)
   }
 
   fseek(file, 0, SEEK_END);
-  long int file_size = ftell(file);
+  size_t file_size = (size_t)ftell(file);
   // move back to start to start reading
   fseek(file, 0, SEEK_SET);
+  // TODO: Why is this of type char for a binary file, and why does it work?
   char file_data[file_size + 1];                  // space for \0
   fread(file_data, (size_t)(file_size), 1, file); // Throw data into file_data
   fclose(file);
@@ -37,13 +39,20 @@ void send_response(int incoming_fd, char *path)
 
   char *status_line = "HTTP/1.0 200 OK\r\n";
 
-  // Start crafting response headers
+  // Start crafting response
   int content_length_header_size = snprintf(NULL, 0, "Content-Length: %li\r\n\r\n", file_size);
   char content_length_header[content_length_header_size];
   snprintf(content_length_header, (size_t)content_length_header_size, "Content-Length: %li\r\n", file_size);
 
   char *content_type_header = "Content-Type: text/html\r\n";
+
+  // TODO: Naive function to take the file extension from path and turn that into content-type header
+  if (strstr(path, ".png") != NULL)
+  {
+    content_type_header = "Content-Type: image/png\r\n";
+  }
   int content_type_header_size = (int)strlen(content_type_header);
+  // int content_type_header_size = snprintf(NULL, 0, "Content-Type: %s");
 
   long int response_headers_size = content_length_header_size + content_type_header_size + 4;
   char response_headers[response_headers_size];
@@ -52,7 +61,7 @@ void send_response(int incoming_fd, char *path)
   // Send response
   send(incoming_fd, status_line, strlen(status_line), 0);
   send(incoming_fd, response_headers, strlen(response_headers), 0);
-  send(incoming_fd, file_data, (size_t)file_size, 0);
+  send(incoming_fd, file_data, file_size, 0);
   send(incoming_fd, "\r\n", 2, 0);
   return;
 }
