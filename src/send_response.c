@@ -12,8 +12,8 @@ void send_response(int incoming_fd, char *path)
     path = "/index";
   }
   size_t path_length = strlen(path) + 1;
-  char file_name[path_length + 13]; // + 13 is for ./pages .html
-  snprintf(file_name, strlen(path) + 1 + 13, "./pages%s.html", path);
+  char file_name[path_length + 8]; // + 8 is for ./pages
+  snprintf(file_name, strlen(path) + 1 + 8, "./pages%s", path);
 
   FILE *file = fopen(file_name, "rb");
   if (file == NULL)
