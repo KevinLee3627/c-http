@@ -9,7 +9,7 @@ void send_response(int incoming_fd, char *path)
 {
   if (strcmp(path, "/") == 0)
   {
-    path = "/index";
+    path = "/index.html";
   }
   size_t path_length = strlen(path) + 1;
   char file_name[path_length + 8]; // + 8 is for ./pages
@@ -47,7 +47,6 @@ void send_response(int incoming_fd, char *path)
   // Create response
   long int response_size = status_line_size + content_length_header_size + content_type_header_size + file_size + 4;
   char response[response_size];
-  printf("response_size: %li\nstatus_line_size: %i | content_length_size: %i | content_type_size: %i | file size: %li\n", response_size, status_line_size, content_length_header_size, content_type_header_size, file_size);
   snprintf(response, (size_t)response_size, "%s%s%s\r\n%s", status_line, content_length_header, content_type_header, file_data);
 
   // Send response
