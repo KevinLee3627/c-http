@@ -15,8 +15,10 @@
     box-sizing: border-box;
   }
 
-  #main {
-    max-width: 700px;
+  header,
+  main,
+  hr {
+    max-width: 500px;
     margin: 0 auto;
   }
 
@@ -29,15 +31,24 @@
   .center {
     text-align: center;
   }
+
+  img {
+    display: block;
+    margin: 0 auto;
+  }
 </style>
 
 <body>
-  <div id="main">
-    <p class="text center">
-      welcome to my website
-    </p>
-    <img src="./shark.png" />
-  </div>
+  <header id="header">
+    <figure>
+      <img src="./shark.png" alt="An image of Delphy, the site's mascot" title="Delphy" />
+    </figure>
+    <marquee class="text center" scrolldelay="75" scrollamount="8">welcome to my website</marquee>
+  </header>
+  <hr>
+  <main>
+    <p></p>
+  </main>
 </body>
 
 </html>
