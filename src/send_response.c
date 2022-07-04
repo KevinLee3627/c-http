@@ -15,8 +15,8 @@ void send_response(int incoming_fd, char *path)
   char file_name[path_length + 13]; // + 13 is for ./pages .html
   snprintf(file_name, strlen(path) + 1 + 13, "./pages%s.html", path);
 
-  FILE *html_file = fopen(file_name, "r");
-  if (html_file == NULL)
+  FILE *file = fopen(file_name, "rb");
+  if (file == NULL)
   {
     printf("File not found\n");
     char *response = "HTTP/1.0 404 Not Found";
@@ -24,13 +24,13 @@ void send_response(int incoming_fd, char *path)
     return;
   }
 
-  fseek(html_file, 0, SEEK_END);
-  long int file_size = ftell(html_file);
+  fseek(file, 0, SEEK_END);
+  long int file_size = ftell(file);
   // move back to start to start reading
-  fseek(html_file, 0, SEEK_SET);
-  char file_data[file_size + 1];                                      // space for \0
-  fread(file_data, sizeof(char) * (size_t)(file_size), 1, html_file); // Throw data into file_data
-  fclose(html_file);
+  fseek(file, 0, SEEK_SET);
+  char file_data[file_size + 1];                  // space for \0
+  fread(file_data, (size_t)(file_size), 1, file); // Throw data into file_data
+  fclose(file);
   file_data[file_size] = '\0'; // Add null terminator to avoid overflows when using file data as a string
 
   // Start crafting response
