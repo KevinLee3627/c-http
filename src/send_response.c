@@ -11,10 +11,12 @@ void send_response(int incoming_fd, char *path)
   {
     path = "/index.html";
   }
+  // +7 is for ./pages, +1 for null terminator
   size_t path_length = strlen(path) + 1;
-  char file_name[path_length + 8]; // + 8 is for ./pages
-  snprintf(file_name, strlen(path) + 1 + 8, "./pages%s", path);
+  char file_name[path_length + 7];
+  snprintf(file_name, strlen(path) + 1 + 7, "./pages%s", path);
 
+  // Use binary read so we can serve other files like images
   FILE *file = fopen(file_name, "rb");
   if (file == NULL)
   {
@@ -33,10 +35,9 @@ void send_response(int incoming_fd, char *path)
   fclose(file);
   file_data[file_size] = '\0'; // Add null terminator to avoid overflows when using file data as a string
 
-  // Start crafting response
   char *status_line = "HTTP/1.0 200 OK\r\n";
-  int status_line_size = (int)strlen(status_line);
 
+  // Start crafting response headers
   int content_length_header_size = snprintf(NULL, 0, "Content-Length: %li\r\n\r\n", file_size);
   char content_length_header[content_length_header_size];
   snprintf(content_length_header, (size_t)content_length_header_size, "Content-Length: %li\r\n", file_size);
@@ -44,12 +45,14 @@ void send_response(int incoming_fd, char *path)
   char *content_type_header = "Content-Type: text/html\r\n";
   int content_type_header_size = (int)strlen(content_type_header);
 
-  // Create response
-  long int response_size = status_line_size + content_length_header_size + content_type_header_size + file_size + 4;
-  char response[response_size];
-  snprintf(response, (size_t)response_size, "%s%s%s\r\n%s", status_line, content_length_header, content_type_header, file_data);
+  long int response_headers_size = content_length_header_size + content_type_header_size + 4;
+  char response_headers[response_headers_size];
+  snprintf(response_headers, (size_t)response_headers_size, "%s%s\r\n", content_length_header, content_type_header);
 
   // Send response
-  send(incoming_fd, response, strlen(response), 0);
+  send(incoming_fd, status_line, strlen(status_line), 0);
+  send(incoming_fd, response_headers, strlen(response_headers), 0);
+  send(incoming_fd, file_data, (size_t)file_size, 0);
+  send(incoming_fd, "\r\n", 2, 0);
   return;
 }
