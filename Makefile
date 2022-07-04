@@ -1,6 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror -Wshadow -Wdouble-promotion -fno-common -Wconversion -fsanitize=address -fno-omit-frame-pointer
 LDFLAGS = -fsanitize=address
+LDLIBS = -lmagic
 SRCDIR = src
 OBJDIR = $(SRCDIR)/obj
 
@@ -19,7 +20,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 $(TARGET): $(OBJFILES)
-	$(CC) -g $(CFLAGS) -o $(TARGETDIR)/$@ $^  $(LDFLAGS)
+	$(CC) -g $(CFLAGS) -o $(TARGETDIR)/$@ $^ $(LDLIBS) $(LDFLAGS)
 
 .PHONY: clean
 clean:
