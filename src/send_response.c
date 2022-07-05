@@ -64,9 +64,9 @@ void send_response(int incoming_fd, char *path)
   send(incoming_fd, status_line, strlen(status_line) + 1, 0);
 
   // HTTP 1.1 keeps connections alive by default, so need Connection: close header
-  int headers_size = snprintf(NULL, 0, "\r\nContent-Length: %li\r\nContent-Type: %s\r\nConnection: close\r\n", file_size, mime);
+  int headers_size = snprintf(NULL, 0, "Content-Length: %li\r\nContent-Type: %s\r\nConnection: close\r\n", file_size, mime);
   char headers[headers_size + 1];
-  snprintf(headers, (size_t)(headers_size + 1), "\r\nContent-Length: %li\r\nContent-Type: %s\r\nConnection: close\r\n", file_size, mime);
+  snprintf(headers, (size_t)(headers_size + 1), "Content-Length: %li\r\nContent-Type: %s\r\nConnection: close\r\n", file_size, mime);
   send(incoming_fd, headers, strlen(headers), 0);
 
   send(incoming_fd, "\r\n", 2, 0);
@@ -75,7 +75,7 @@ void send_response(int incoming_fd, char *path)
   fread(file_data, (size_t)(file_size), 1, file); // Throw data into file_data
   fclose(file);
 
-  printf("RESPONSE:\n%s%s\r\n", status_line, headers);
+  printf("RESPONSE:\n%s%s", status_line, headers);
   send(incoming_fd, file_data, (size_t)file_size, 0);
   return;
 }
