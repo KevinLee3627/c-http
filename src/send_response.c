@@ -31,17 +31,24 @@ void send_response(int incoming_fd, char *path)
   {
     path = "/index.html";
   }
-  // +5 is for pages, +1 for null terminator
-  size_t path_length = strlen(path) + 1;
-  char file_path[path_length + 5];
-  snprintf(file_path, path_length + 5, "pages%s", path);
-  // printf("File name: %s\n", file_path);
+
+  int file_path_size = snprintf(NULL, 0, "./pages%s", path);
+  char *file_path = malloc(file_path_size + 1); // yay null terminator
+  snprintf(file_path, (size_t)(file_path_size + 1), "./pages%s", path);
 
   // libmagic didn't work, so here's a temp? solution...
   // Open the mime file, search for the extension
   char mime[50];
-  char *extension = strrchr(file_path, '.');
-
+  // Move file_path pointer over by one because it starts with a period
+  char *extension = strrchr(file_path + 1, '.');
+  // If there is no extension, set it to .html
+  if (extension == NULL)
+  {
+    file_path_size += 5;
+    file_path = realloc(file_path, file_path_size + 1); // yay null terminator
+    snprintf(file_path, (size_t)(file_path_size + 1), "./pages%s.html", path);
+    extension = ".html";
+  }
   FILE *mime_file = fopen("./src/mime.types", "r");
   char line[51];
   while (fgets(line, sizeof(line), mime_file))
@@ -64,6 +71,7 @@ void send_response(int incoming_fd, char *path)
 
   // Use binary read so we can serve other files like images
   FILE *file = fopen(file_path, "rb");
+  free(file_path);
   if (file == NULL)
   {
     // TODO: How to generalize send_response so we can easily send the 404 page?
@@ -72,8 +80,6 @@ void send_response(int incoming_fd, char *path)
     send(incoming_fd, response, strlen(response), 0);
     return;
   }
-
-  // Get size of file in bytes
   struct stat file_stats;
   // fileno gets the file descriptor; fopen is the stream
   fstat(fileno(file), &file_stats);
