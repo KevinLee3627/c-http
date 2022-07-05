@@ -6,10 +6,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-int send_data(int incoming_fd, void *data, ssize_t data_size)
+// send() has a change to not send all the bytes - this ensures it does
+int send_data(int incoming_fd, void *data, long data_size)
 {
   unsigned char *pdata = (unsigned char *)data;
-  ssize_t numSent;
+  long numSent;
 
   while (data_size > 0)
   {
@@ -80,21 +81,19 @@ void send_response(int incoming_fd, char *path)
 
   char *status_line = "HTTP/1.0 200 OK\r\n";
   // DON'T SEND strlen(...) + 1 bytes!!! the +1 sends a null terminator, which makes things weird
-  send(incoming_fd, status_line, strlen(status_line), 0);
+  send_data(incoming_fd, status_line, (long)strlen(status_line));
 
   int headers_size = snprintf(NULL, 0, "Content-Length: %li\r\nContent-Type: %s\r\n", file_size, mime);
   char headers[headers_size + 1];
   snprintf(headers, (size_t)(headers_size + 1), "Content-Length: %li\r\nContent-Type: %s\r\n", file_size, mime);
-  send(incoming_fd, headers, strlen(headers), 0);
+  send_data(incoming_fd, headers, (long)strlen(headers));
 
-  send(incoming_fd, "\r\n", 2, 0);
-  // TODO: Why is this of type char for a binary file, and why does it work?
-  char file_data[file_size];
+  send_data(incoming_fd, "\r\n", 2);
+  unsigned char file_data[file_size];
   fread(file_data, (size_t)(file_size), 1, file); // Throw data into file_data
   send_data(incoming_fd, file_data, file_size);
   fclose(file);
 
   printf("RESPONSE:\n%s%s", status_line, headers);
-  // send(incoming_fd, file_data, (size_t)file_size, 0);
   return;
 }
