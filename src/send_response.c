@@ -38,6 +38,12 @@ void send_response(int incoming_fd, char *path)
   char *file_path = malloc((size_t)(file_path_size + 1)); // yay null terminator
   snprintf(file_path, (size_t)(file_path_size + 1), "%s%s", ASSET_DIR, path);
 
+  // don't let people get cheeky and start poking around the filesystem
+  if (strstr(file_path, "..") != NULL)
+  {
+    printf("Stay out!\n");
+    exit(0);
+  }
   // libmagic didn't work, so here's a temp? solution...
   // Open the mime file, search for the extension
   char mime[50];
