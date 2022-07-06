@@ -27,6 +27,22 @@ int send_data(int incoming_fd, void *data, long data_size)
   return 0;
 }
 
+void send_404(int incoming_fd)
+{
+  // TODO: ALso please find better names and don't hardcode these values
+  // TODO: How to generalize send_response so we can easily send the 404 page?
+
+  printf("File not found\n");
+  char *response = "HTTP/1.0 404 Not Found\r\nContent-Length: 826\r\nContent-Type: text/html\r\n";
+  send_data(incoming_fd, response, (long)strlen(response));
+  int data_404_size = 826;
+  FILE *file_404 = fopen("./pages/404.html", "rb");
+  unsigned char file_data_404[data_404_size];
+  fread(file_data_404, (size_t)(data_404_size), 1, file_404); // Throw data into file_data
+  send_data(incoming_fd, file_data_404, data_404_size);
+  fclose(file_404);
+}
+
 void send_response(int incoming_fd, char *path)
 {
   if (strcmp(path, "/") == 0)
@@ -82,17 +98,7 @@ void send_response(int incoming_fd, char *path)
   free(file_path);
   if (file == NULL)
   {
-    // TODO: How to generalize send_response so we can easily send the 404 page?
-    // TODO: ALso please find better names and don't hardcode these values
-    printf("File not found\n");
-    char *response = "HTTP/1.0 404 Not Found\r\nContent-Length: 826\r\nContent-Type: text/html\r\n";
-    send_data(incoming_fd, response, (long)strlen(response));
-    int data_404_size = 826;
-    FILE *file_404 = fopen("./pages/404.html", "rb");
-    unsigned char file_data_404[data_404_size];
-    fread(file_data_404, (size_t)(data_404_size), 1, file_404); // Throw data into file_data
-    send_data(incoming_fd, file_data_404, data_404_size);
-    fclose(file_404);
+    send_404(incoming_fd);
     return;
   }
   struct stat file_stats;
