@@ -6,12 +6,12 @@
 #include "protocol.h"
 #include "errors.h"
 
-int parse_request(char *req_buffer, ssize_t req_length, char **path, struct HTTPRequest *http_request)
+int parse_request(char *req_buffer, ssize_t req_length, struct HTTPRequest *http_request)
 {
   // Status line : METHOD PATH HTTP - VERSION\r\n
   req_buffer[req_length] = '\0';
 
-  char *status_line_terminator = strstr(req_buffer, "\r\n");
+  // char *status_line_terminator = strstr(req_buffer, "\r\n");
   char *status_line_start = &req_buffer[0];
 
   // Find first space occurence - start to first space occurence = the method
