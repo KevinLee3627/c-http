@@ -5,7 +5,7 @@ LDLIBS =
 SRCDIR = src
 OBJDIR = $(SRCDIR)/obj
 
-_DEPS = parse_request.h
+_DEPS = parse_request.h send_response.h errors.h protocol.h
 DEPS = $(patsubst %,$(SRCDIR)/%,$(_DEPS))
 
 _OBJFILES = server.o parse_request.o send_response.o
