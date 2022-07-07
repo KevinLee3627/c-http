@@ -3,9 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-int parse_request(char *req_buffer, ssize_t req_length, char **method, char **path)
+#include "protocol.h"
+
+int parse_request(char *req_buffer, ssize_t req_length, char **path, struct HTTPRequest *http_request)
 {
-  // Status line: METHOD PATH HTTP-VERSION\r\n
+  // Status line : METHOD PATH HTTP - VERSION\r\n
   req_buffer[req_length] = '\0';
 
   char *status_line_terminator = strstr(req_buffer, "\r\n");
@@ -21,9 +23,10 @@ int parse_request(char *req_buffer, ssize_t req_length, char **method, char **pa
   char *first_space = strstr(start, " ");                   // pointer to the first space
   size_t method_length = (size_t)(first_space - start + 1); // +1 for null terminator
   // Allocate memory, copy the method, then add a null terminator
-  *method = malloc(method_length);
-  memcpy(*method, start, method_length - 1);
-  (*method)[method_length - 1] = '\0';
+  char *tmp_method = malloc(method_length);
+  memcpy(tmp_method, start, method_length - 1);
+  tmp_method[method_length - 1] = '\0';
+  http_request->method = tmp_method;
 
   // first_space is a pointer pointing to the actual space - to find the 2nd space,
   // you need to start searching from first_space + 1
