@@ -9,7 +9,7 @@ enum ERROR_CODES
   JUST_FOR_FUN
 };
 
-const char *const ERROR_MESSAGES[] = {
+const char *const CUSTOM_ERROR_MESSAGES[] = {
     [MALFORMED_STATUS_LINE] = "Status line is malformed",
     [JUST_FOR_FUN] = "Testing"};
 #endif

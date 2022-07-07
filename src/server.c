@@ -142,18 +142,16 @@ int main(int argc, char **argv)
         exit(0);
       }
 
-      char *path;
       struct HTTPRequest *http_request = malloc(sizeof(struct HTTPRequest));
-      int parse_req_status = parse_request(request_buffer, bytes_received, &path, http_request);
+      int parse_req_status = parse_request(request_buffer, bytes_received, http_request);
       if (parse_req_status > 0)
       {
-        printf("ERROR: %s\n", ERROR_MESSAGES[parse_req_status]);
+        printf("ERROR: %s\n", CUSTOM_ERROR_MESSAGES[parse_req_status]);
         exit(0);
       }
 
       // send_response(incoming_fd, path);
       free(request_buffer);
-      free(path);
       free(http_request->method);
       free(http_request->path);
       free(http_request);
