@@ -131,7 +131,7 @@ int main(int argc, char **argv)
       {
         free(request_buffer);
         perror("error w/ recv:");
-        exit(0);
+        exit(1);
       }
 
       if (bytes_received == 0)
@@ -147,7 +147,7 @@ int main(int argc, char **argv)
       if (parse_req_status > 0)
       {
         printf("ERROR: %s\n", CUSTOM_ERROR_MESSAGES[parse_req_status]);
-        exit(0);
+        exit(1);
       }
 
       // send_response(incoming_fd, path);
