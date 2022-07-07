@@ -9,7 +9,9 @@
 int parse_request(char *req_buffer, ssize_t req_length, struct HTTPRequest *http_request)
 {
   // Status line : METHOD PATH HTTP - VERSION\r\n
+
   req_buffer[req_length] = '\0';
+  printf("%s\n", req_buffer);
 
   // char *status_line_terminator = strstr(req_buffer, "\r\n");
   char *status_line_start = &req_buffer[0];
@@ -28,7 +30,7 @@ int parse_request(char *req_buffer, ssize_t req_length, struct HTTPRequest *http
   char *second_space = strstr(first_space + 1, " ");
   if (second_space == NULL)
   {
-    return MALFORMED_STATUS_LINE;
+    return 1;
   }
   size_t path_length = (size_t)(second_space - first_space);
   http_request->path = malloc(path_length);
@@ -36,5 +38,5 @@ int parse_request(char *req_buffer, ssize_t req_length, struct HTTPRequest *http
   memcpy(http_request->path, first_space + 1, path_length - 1);
   http_request->path[path_length - 1] = '\0';
 
-  return 1;
+  return 0;
 }

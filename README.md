@@ -8,3 +8,4 @@ First project in C!
 - Get feedback on code - this is my first c project after all
 - Serve HTML on /XXX - if there's no extension, default to .html
 - robots.txt
+- custom errors?
