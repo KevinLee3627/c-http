@@ -8,5 +8,5 @@ enum METHOD
   GET,
 };
 
-int parse_request(char *req_buffer, ssize_t req_length, struct HTTPRequest *http_request);
+int parse_request(char *req_buffer, struct HTTPRequest *http_request);
 #endif

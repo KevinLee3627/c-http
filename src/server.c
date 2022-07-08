@@ -141,7 +141,7 @@ int main(int argc, char **argv)
       }
 
       struct HTTPRequest *http_request = malloc(sizeof(struct HTTPRequest));
-      int parse_req_status = parse_request(request_buffer, bytes_received, http_request);
+      int parse_req_status = parse_request(request_buffer, http_request);
       if (parse_req_status > 0)
       {
         // printf("ERROR: %s\n", ERROR_MESSAGES[parse_req_status]);

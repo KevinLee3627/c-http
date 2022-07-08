@@ -5,11 +5,10 @@
 
 #include "protocol.h"
 
-int parse_request(char *req_buffer, ssize_t req_length, struct HTTPRequest *http_request)
+int parse_request(char *req_buffer, struct HTTPRequest *http_request)
 {
   // TODO: Error handling?
   char *cursor;
-  printf("Splitting req_buffer\n");
   cursor = strtok(req_buffer, " ");
   http_request->method = cursor;
 
