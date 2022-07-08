@@ -69,7 +69,6 @@ struct Node *left_rotate(struct Node *current_root)
 
   new_root->left = current_root;
   current_root->right = leaf_to_move;
-  print_tree(new_root, new_root->height);
   return new_root;
 }
 struct Node *right_rotate(struct Node *y)
@@ -104,7 +103,6 @@ struct Node *right_rotate(struct Node *y)
   x->height = get_height(x);
 
   // Return the new root
-  print_tree(x, x->height);
   return x;
 }
 
@@ -127,11 +125,14 @@ struct Node *insert(struct Node *node, int key, char *value, int height)
   }
   else
   {
+    // BST does not allow duplicate keys
     return node;
   }
 
   node->height = get_height(node);
 
+  // If a rotation occurs, the rotate functions will return the new root
+  // Otherwise, return the original root.
   int balance_factor = get_balance_factor(node);
   if (balance_factor > 1 && key < node->left->key)
   {
@@ -191,8 +192,8 @@ int main(void)
   root->key = 30;
   root->value = "ROOT";
   root->depth = 0;
-  insert(root, 10, "test", root->depth);
-  insert(root, 20, "test", root->depth);
+  root = insert(root, 10, "test", root->depth);
+  root = insert(root, 20, "test", root->depth);
   // insert(root, 50, "test", root->depth);
   // insert(root, 75, "test", root->depth);
   // insert(root, 85, "test", root->depth);
