@@ -87,7 +87,7 @@ void send_response(int incoming_fd, char *path)
     {
       char *tmp_mime = strchr(line, ',') + 1;
       tmp_mime[strcspn(tmp_mime, "\n")] = '\0';
-      strncpy(mime, tmp_mime, strlen(tmp_mime));
+      strncpy(mime, tmp_mime, strlen(tmp_mime) + 1); // dpn't forget +1 to copy null terminator...
       break;
     }
   }
