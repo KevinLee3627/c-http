@@ -15,7 +15,6 @@
 #include "parse_request.h"
 #include "send_response.h"
 #include "protocol.h"
-#include "errors.h"
 
 #define BACKLOG_COUNT 20
 #define MAX_FORKS 5
@@ -148,11 +147,9 @@ int main(int argc, char **argv)
         // printf("ERROR: %s\n", ERROR_MESSAGES[parse_req_status]);
         exit(1);
       }
-
-      // send_response(incoming_fd, path);
-      free(request_buffer);
-      free(http_request->method);
-      free(http_request->path);
+      send_response(incoming_fd, http_request->path);
+      // free(http_request->method);
+      // free(http_request->path);
       free(http_request);
       close(incoming_fd);
       exit(0); // Exits the forked child process
