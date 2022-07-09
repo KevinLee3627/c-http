@@ -9,3 +9,4 @@ First project in C!
 - Serve HTML on /XXX - if there's no extension, default to .html
 - robots.txt
 - custom errors?
+- make Delphy smile when you click on him
