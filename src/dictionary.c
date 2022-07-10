@@ -1,6 +1,7 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #define BUCKET_COUNT 16
 
@@ -72,6 +73,21 @@ void insert(struct HashTable *hash_table, char *key, char *value)
   hash_table->buckets[index] = new_node;
 }
 
+char *get(struct HashTable *hash_table, char *key)
+{
+  unsigned long index = hash(key);
+  while (hash_table->buckets[index] != NULL)
+  {
+    struct Node *tmp = hash_table->buckets[index]->next;
+    if (strcmp(hash_table->buckets[index]->key, key) == 0)
+    {
+      return hash_table->buckets[index]->value;
+    }
+    hash_table->buckets[index] = tmp;
+  }
+  return NULL;
+}
+
 void free_table(struct HashTable *hash_table)
 {
   for (int i = 0; i < hash_table->bucket_count; i++)
@@ -106,15 +122,12 @@ int main(void)
   struct HashTable *hash_table = init_hash_table(BUCKET_COUNT);
   insert(hash_table, "Content-Type", "asdf");
   insert(hash_table, "Host", "whatevs");
-  insert(hash_table, "Test", "whatevs");
   insert(hash_table, "Accept", "whatevs");
-  insert(hash_table, "SLASD", "whatevs");
-  insert(hash_table, "Test 3", "whatevs");
-  insert(hash_table, "test 4", "whatevs");
-  insert(hash_table, "test 5", "whatevs");
-  insert(hash_table, "test 6", "whatevs");
+  insert(hash_table, "Test", "whatevs");
   insert(hash_table, "test 7", "whatevs");
-  print_table(hash_table);
+  insert(hash_table, "SLASD", "whatevs");
+  // print_table(hash_table);
+  printf("%s\n", get(hash_table, "Host"));
   free_table(hash_table);
   return 0;
 }
