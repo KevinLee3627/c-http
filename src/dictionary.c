@@ -13,12 +13,11 @@ unsigned long hash(const char *key)
   unsigned long hash = 5381;
   int c;
 
-  while (c = *key++)
+  while ((c = *key++))
   {
-    hash = ((hash << 5) + hash) + c;
+    hash = ((hash << 5) + hash) + (unsigned long)c;
   }
   return hash % BUCKET_COUNT;
-  // return key[0] % BUCKET_COUNT;
 }
 
 struct HashTable *init_hash_table(int count)
@@ -29,7 +28,7 @@ struct HashTable *init_hash_table(int count)
     return NULL;
 
   // Allocate space for the actual data in hash_table
-  hash_table->buckets = calloc(count, sizeof(struct Node));
+  hash_table->buckets = calloc((size_t)count, sizeof(struct Node));
   if (hash_table->buckets == NULL)
   {
     free(hash_table);

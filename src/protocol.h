@@ -1,14 +1,16 @@
 #ifndef PROTOCL_H
 #define PROTOCL_H
-struct HTTPRequest {
+struct HTTPRequest
+{
   char *method;
   char *path;
   char *version;
-  char *headers;
+  struct HashTable *headers;
   char *body;
 };
 
-struct Header {
+struct Header
+{
   char *name;
   char *value;
 };
