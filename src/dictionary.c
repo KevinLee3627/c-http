@@ -3,20 +3,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "dictionary.h"
+
 #define BUCKET_COUNT 16
-
-struct Node
-{
-  char *key;
-  char *value;
-  struct Node *next;
-};
-
-struct HashTable
-{
-  struct Node **buckets;
-  int bucket_count;
-};
 
 // Hash function provided here: http://www.cse.yorku.ca/~oz/hash.html
 unsigned long hash(const char *key)
@@ -115,19 +104,4 @@ void print_table(struct HashTable *hash_table)
       current_bucket = tmp;
     }
   }
-}
-
-int main(void)
-{
-  struct HashTable *hash_table = init_hash_table(BUCKET_COUNT);
-  insert(hash_table, "Content-Type", "asdf");
-  insert(hash_table, "Host", "whatevs");
-  insert(hash_table, "Accept", "whatevs");
-  insert(hash_table, "Test", "whatevs");
-  insert(hash_table, "test 7", "whatevs");
-  insert(hash_table, "SLASD", "whatevs");
-  // print_table(hash_table);
-  printf("%s\n", get(hash_table, "Host"));
-  free_table(hash_table);
-  return 0;
 }
