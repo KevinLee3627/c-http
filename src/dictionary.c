@@ -1,205 +1,120 @@
+#include <sys/types.h>
 #include <stdlib.h>
 #include <stdio.h>
-struct Entry
-{
-  char *value;
-  int key;
-};
 
-struct Dictionary
-{
-};
+#define BUCKET_COUNT 16
 
 struct Node
 {
-  int key;
+  char *key;
   char *value;
-  struct Node *left;
-  struct Node *right;
-  int balance_factor; // -1, 0, +1
-  int height;
-  int depth;
+  struct Node *next;
 };
 
-struct AVLTree
+struct HashTable
 {
-  struct Node *root;
+  struct Node **buckets;
+  int bucket_count;
 };
-void print_tree(struct Node *root, int max_height);
 
-struct Node *create_node(int key, char *value)
+// Hash function provided here: http://www.cse.yorku.ca/~oz/hash.html
+unsigned long hash(const char *key)
 {
-  struct Node *node = malloc(sizeof(struct Node));
-  node->key = key;
-  node->value = value;
-  node->left = NULL;
-  node->right = NULL;
-  node->height = 0;
-  node->depth = 0;
-  return node;
+  unsigned long hash = 5381;
+  int c;
+
+  while (c = *key++)
+  {
+    hash = ((hash << 5) + hash) + c;
+  }
+  return hash % BUCKET_COUNT;
+  // return key[0] % BUCKET_COUNT;
 }
 
-int max(int a, int b)
+struct HashTable *init_hash_table(int count)
 {
-  return (a > b) ? a : b;
-}
-// Get the height of a tree starting from a node
-int get_height(struct Node *node)
-{
-  if (node == NULL)
-  {
-    return 0;
-  }
-  return 1 + max(get_height(node->left), get_height(node->right));
-}
+  // Allocate space for the HashTable struct
+  struct HashTable *hash_table = calloc(1, sizeof(struct HashTable));
+  if (hash_table == NULL)
+    return NULL;
 
-int get_balance_factor(struct Node *node)
-{
-  if (node == NULL)
+  // Allocate space for the actual data in hash_table
+  hash_table->buckets = calloc(count, sizeof(struct Node));
+  if (hash_table->buckets == NULL)
   {
-    return 0;
+    free(hash_table);
+    return NULL;
   }
-  return get_height(node->left) - get_height(node->right);
+
+  hash_table->bucket_count = count;
+  return hash_table;
 }
 
-struct Node *left_rotate(struct Node *current_root)
+void insert(struct HashTable *hash_table, char *key, char *value)
 {
-  struct Node *new_root = current_root->right;
-  struct Node *leaf_to_move = new_root->left;
+  struct Node *new_node = malloc(sizeof(struct Node));
+  if (new_node == NULL)
+    return;
 
-  new_root->left = current_root;
-  current_root->right = leaf_to_move;
-  return new_root;
-}
-struct Node *right_rotate(struct Node *y)
-{
-  /*
-         Y (2)                   X
-        / \                    /   \
-       /   \                  /     \
-       X     3 ---->          A      Y
-      /\                    / \      /\
-     /  \                  /   \    /  \
-    A    B                 1    2  B    3
-   /\
-  /  \
- 1    2
-    X is the new root. Y becomes the right sub-tree of X
-    A stays as the left subtree of the new root, X
-    If X had a right subtree (B), it would be the new left subtree of Y
-  */
-  printf("Current node: %i\n", y->key);
-  // Becomes the new root
-  struct Node *x = y->left;
-  struct Node *b = x->right;
+  new_node->key = key;
+  new_node->value = value;
+  new_node->next = NULL;
 
-  // Y should be the new root (X)'s new right subtree
-  x->right = y;
-  //  the right subtree of X, aka B, should be Y's new left subtree
-  y->left = b;
+  unsigned long index = hash(key);
 
-  // Update the heights of the moved nodes
-  y->height = get_height(y);
-  x->height = get_height(x);
+  if (hash_table->buckets[index] == NULL)
+  {
+    hash_table->buckets[index] = new_node;
+    return;
+  }
 
-  // Return the new root
-  return x;
+  new_node->next = hash_table->buckets[index];
+  hash_table->buckets[index] = new_node;
 }
 
-struct Node *insert(struct Node *node, int key, char *value, int height)
+void free_table(struct HashTable *hash_table)
 {
-  if (node == NULL)
+  for (int i = 0; i < hash_table->bucket_count; i++)
   {
-    struct Node *new_node = create_node(key, value);
-    new_node->depth = height;
-    return new_node;
-  }
-
-  if (key < node->key)
-  {
-    node->left = insert(node->left, key, value, node->depth + 1);
-  }
-  else if (key > (node)->key)
-  {
-    node->right = insert(node->right, key, value, node->depth + 1);
-  }
-  else
-  {
-    // BST does not allow duplicate keys
-    return node;
-  }
-
-  node->height = get_height(node);
-
-  // If a rotation occurs, the rotate functions will return the new root
-  // Otherwise, return the original root.
-  int balance_factor = get_balance_factor(node);
-  if (balance_factor > 1 && key < node->left->key)
-  {
-    printf("doing right\n");
-    return right_rotate(node);
-  }
-  if (balance_factor < -1 && key < node->right->key)
-  {
-    printf("doing left\n");
-    return left_rotate(node);
-  }
-  if (balance_factor > 1 && key > node->left->key)
-  {
-    printf("doing left-right\n");
-    node->left = left_rotate(node->left);
-    return right_rotate(node);
-  }
-  if (balance_factor < -1 && key < node->right->key)
-  {
-    printf("doing right-left\n");
-    node->right = right_rotate(node->right);
-    return left_rotate(node);
-  }
-  return node;
-}
-
-void free_tree(struct Node *node)
-{
-  if (node->left != NULL)
-  {
-    free_tree(node->left);
-  }
-  if (node->right != NULL)
-  {
-    free_tree(node->right);
-  }
-  free(node);
-}
-
-void print_tree(struct Node *root, int max_height)
-{
-  if (root != NULL)
-  {
-    print_tree(root->right, max_height);
-    for (int i = get_height(root); i <= max_height; i++)
+    while (hash_table->buckets[i] != NULL)
     {
-      printf("-----");
+      struct Node *tmp = hash_table->buckets[i]->next;
+      free(hash_table->buckets[i]);
+      hash_table->buckets[i] = tmp;
     }
-    printf("%i (%i, %i, %i)|\n", root->key, get_balance_factor(root), get_height(root), root->depth);
-    print_tree(root->left, max_height);
+  }
+  free(hash_table->buckets);
+  free(hash_table);
+}
+
+void print_table(struct HashTable *hash_table)
+{
+  for (int i = 0; i < hash_table->bucket_count; i++)
+  {
+    struct Node *current_bucket = hash_table->buckets[i];
+    while (current_bucket != NULL)
+    {
+      struct Node *tmp = current_bucket->next;
+      printf("(%i): %p -> %s: %s\n", i, current_bucket, current_bucket->key, current_bucket->value);
+      current_bucket = tmp;
+    }
   }
 }
 
 int main(void)
 {
-  struct Node *root = malloc(sizeof(struct Node));
-  root->key = 30;
-  root->value = "ROOT";
-  root->depth = 0;
-  root = insert(root, 10, "test", root->depth);
-  root = insert(root, 20, "test", root->depth);
-  // insert(root, 50, "test", root->depth);
-  // insert(root, 75, "test", root->depth);
-  // insert(root, 85, "test", root->depth);
-  // insert(root, 28, "test", root->depth);
-
-  print_tree(root, root->height);
-  free_tree(root);
+  struct HashTable *hash_table = init_hash_table(BUCKET_COUNT);
+  insert(hash_table, "Content-Type", "asdf");
+  insert(hash_table, "Host", "whatevs");
+  insert(hash_table, "Test", "whatevs");
+  insert(hash_table, "Accept", "whatevs");
+  insert(hash_table, "SLASD", "whatevs");
+  insert(hash_table, "Test 3", "whatevs");
+  insert(hash_table, "test 4", "whatevs");
+  insert(hash_table, "test 5", "whatevs");
+  insert(hash_table, "test 6", "whatevs");
+  insert(hash_table, "test 7", "whatevs");
+  print_table(hash_table);
+  free_table(hash_table);
   return 0;
 }
