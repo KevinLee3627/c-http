@@ -24,17 +24,33 @@ int parse_request(char *req_buffer, struct HTTPRequest *http_request)
 
   while (get_token(request_tokenizer, "\r\n") == 0)
   {
-    printf("Token: %s\n", request_tokenizer->token);
-    if (strcmp(request_tokenizer->token, "") == 0)
+    char *header_line = request_tokenizer->token;
+    if (strcmp(header_line, "") == 0)
     {
       printf("end of headers\n");
-      free(request_tokenizer->token);
+      free(header_line);
       break;
     }
-    free(request_tokenizer->token);
+    struct Tokenizer *header_tokenizer = init_tokenizer(header_line);
+    get_token(header_tokenizer, ": ");
+
+    size_t header_key_len = strlen(header_tokenizer->token);
+    char header_key[header_key_len + 1];
+    strncpy(header_key, header_tokenizer->token, header_key_len);
+    header_key[header_key_len] = '\0';
+
+    size_t header_val_len = strlen(header_tokenizer->remaining_buffer);
+    char header_val[header_val_len + 1];
+    strncpy(header_val, header_tokenizer->remaining_buffer, header_val_len);
+    header_val[header_val_len] = '\0';
+
+    insert(http_request->headers, header_key, header_val);
+
+    free(header_tokenizer->token);
+    free(header_tokenizer);
+    free(header_line);
     request_tokenizer->buffer = request_tokenizer->remaining_buffer;
   }
-
   free(request_tokenizer);
   return 0;
 }
