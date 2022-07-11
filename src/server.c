@@ -140,17 +140,16 @@ int main(int argc, char **argv)
         exit(0);
       }
 
-      struct HTTPRequest *http_request = malloc(sizeof(struct HTTPRequest));
+      struct HTTPRequest *http_request = init_http_request();
       int parse_req_status = parse_request(request_buffer, http_request);
       if (parse_req_status > 0)
       {
-        // printf("ERROR: %s\n", ERROR_MESSAGES[parse_req_status]);
         exit(1);
       }
-      send_response(incoming_fd, http_request->path);
-      // free(http_request->method);
-      // free(http_request->path);
-      free(http_request);
+      printf("METHOD: %s\n", http_request->method);
+      printf("PATH: %s\n", http_request->path);
+
+      free_http_request(http_request);
       close(incoming_fd);
       exit(0); // Exits the forked child process
     }
