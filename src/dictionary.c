@@ -5,10 +5,8 @@
 
 #include "dictionary.h"
 
-#define BUCKET_COUNT 16
-
 // Hash function provided here: http://www.cse.yorku.ca/~oz/hash.html
-unsigned long hash(const char *key)
+unsigned long hash(const char *key, int bucket_count)
 {
   unsigned long hash = 5381;
   int c;
@@ -17,7 +15,7 @@ unsigned long hash(const char *key)
   {
     hash = ((hash << 5) + hash) + (unsigned long)c;
   }
-  return hash % BUCKET_COUNT;
+  return hash % bucket_count;
 }
 
 struct HashTable *init_hash_table(int count)
@@ -49,7 +47,7 @@ void insert(struct HashTable *hash_table, char *key, char *value)
   new_node->value = value;
   new_node->next = NULL;
 
-  unsigned long index = hash(key);
+  unsigned long index = hash(key, hash_table->bucket_count);
 
   if (hash_table->buckets[index] == NULL)
   {
@@ -63,7 +61,7 @@ void insert(struct HashTable *hash_table, char *key, char *value)
 
 char *get(struct HashTable *hash_table, char *key)
 {
-  unsigned long index = hash(key);
+  unsigned long index = hash(key, hash_table->bucket_count);
   while (hash_table->buckets[index] != NULL)
   {
     struct Node *tmp = hash_table->buckets[index]->next;
