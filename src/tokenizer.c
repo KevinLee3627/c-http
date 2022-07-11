@@ -1,13 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 
-struct Tokenizer
-{
-  char *buffer;    // String to tokenize
-  char *token;     // Token returned from get_token
-  char *token_end; // Pointer to end of token, returned from get_token
-};
+#include "tokenizer.h"
 
 struct Tokenizer *init_tokenizer(char *str)
 {
@@ -26,7 +22,7 @@ int get_token(struct Tokenizer *tokenizer, const char *delimiter)
   if (end_ptr == NULL)
     return -1;
 
-  size_t token_len = end_ptr - start_ptr;
+  size_t token_len = (uintptr_t)end_ptr - (uintptr_t)start_ptr;
 
   tokenizer->token = malloc(token_len + 1);
   if (tokenizer->token == NULL)
