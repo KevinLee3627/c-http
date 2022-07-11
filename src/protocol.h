@@ -16,4 +16,6 @@ struct Header
 };
 
 struct HTTPRequest *init_http_request(void);
+void free_http_request(struct HTTPRequest *http_request);
+
 #endif
