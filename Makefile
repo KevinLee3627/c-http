@@ -8,7 +8,7 @@ OBJDIR = $(SRCDIR)/obj
 _DEPS = parse_request.h send_response.h protocol.h dictionary.h tokenizer.h
 DEPS = $(patsubst %,$(SRCDIR)/%,$(_DEPS))
 
-_OBJFILES = server.o parse_request.o send_response.o dictionary.o tokenizer.o
+_OBJFILES = server.o parse_request.o send_response.o protocol.o dictionary.o tokenizer.o
 OBJFILES = $(patsubst %,$(OBJDIR)/%,$(_OBJFILES))
 
 TARGETDIR = bin
