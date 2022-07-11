@@ -1,6 +1,8 @@
 #ifndef DICTIONARY_H
 #define DICTIONARY_H
 
+#define BUCKET_COUNT 16
+
 struct Node
 {
   char *key;
@@ -14,7 +16,7 @@ struct HashTable
   int bucket_count;
 };
 
-unsigned long hash(const char *key, int bucket_count);
+unsigned long hash(const char *key);
 struct HashTable *init_hash_table(int count);
 void insert(struct HashTable *hash_table, char *key, char *value);
 char *get(struct HashTable *hash_table, char *key);
