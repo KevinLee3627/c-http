@@ -15,6 +15,7 @@
 #include "parse_request.h"
 #include "send_response.h"
 #include "protocol.h"
+#include "dictionary.h"
 
 #define BACKLOG_COUNT 20
 #define MAX_FORKS 5
@@ -122,10 +123,9 @@ int main(int argc, char **argv)
     else if (child_pid == 0)
     {
       // This is the child process
-      const size_t req_buffer_length = sizeof(char) * 800;
+      const size_t req_buffer_length = sizeof(char) * 2000;
       char *request_buffer = malloc(req_buffer_length);
       ssize_t bytes_received = recv(incoming_fd, request_buffer, req_buffer_length - 1, 0);
-
       if (bytes_received == -1)
       {
         free(request_buffer);
@@ -147,7 +147,6 @@ int main(int argc, char **argv)
         exit(1);
       }
       send_response(incoming_fd, http_request->path);
-
       free_http_request(http_request);
       close(incoming_fd);
       exit(0); // Exits the forked child process
