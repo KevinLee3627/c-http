@@ -5,6 +5,7 @@
 
 #include "protocol.h"
 #include "tokenizer.h"
+#include "dictionary.h"
 
 int parse_request(char *req_buffer, struct HTTPRequest *http_request)
 {
@@ -17,8 +18,22 @@ int parse_request(char *req_buffer, struct HTTPRequest *http_request)
   http_request->path = request_tokenizer->token;
   request_tokenizer->buffer = request_tokenizer->remaining_buffer;
 
-  int status = get_token(request_tokenizer, "\r\n");
+  get_token(request_tokenizer, "\r\n");
   http_request->version = request_tokenizer->token;
+  request_tokenizer->buffer = request_tokenizer->remaining_buffer;
+
+  while (get_token(request_tokenizer, "\r\n") == 0)
+  {
+    printf("Token: %s\n", request_tokenizer->token);
+    if (strcmp(request_tokenizer->token, "") == 0)
+    {
+      printf("end of headers\n");
+      free(request_tokenizer->token);
+      break;
+    }
+    free(request_tokenizer->token);
+    request_tokenizer->buffer = request_tokenizer->remaining_buffer;
+  }
 
   free(request_tokenizer);
   return 0;
