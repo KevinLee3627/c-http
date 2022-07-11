@@ -14,4 +14,6 @@ struct Header
   char *name;
   char *value;
 };
+
+struct HTTPRequest *init_http_request(void);
 #endif
