@@ -4,19 +4,22 @@
 #include <string.h>
 
 #include "protocol.h"
+#include "tokenizer.h"
 
 int parse_request(char *req_buffer, struct HTTPRequest *http_request)
 {
-  // TODO: Error handling?
-  char *cursor;
-  cursor = strtok(req_buffer, " ");
-  http_request->method = cursor;
+  struct Tokenizer *request_tokenizer = init_tokenizer(req_buffer);
+  get_token(request_tokenizer, " ");
+  http_request->method = request_tokenizer->token;
+  request_tokenizer->buffer = request_tokenizer->remaining_buffer;
 
-  cursor = strtok(NULL, " ");
-  http_request->path = cursor;
+  get_token(request_tokenizer, " ");
+  http_request->path = request_tokenizer->token;
+  request_tokenizer->buffer = request_tokenizer->remaining_buffer;
 
-  cursor = strtok(NULL, "\n");
-  http_request->version = cursor;
+  int status = get_token(request_tokenizer, "\r\n");
+  http_request->version = request_tokenizer->token;
 
+  free(request_tokenizer);
   return 0;
 }

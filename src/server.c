@@ -146,8 +146,7 @@ int main(int argc, char **argv)
       {
         exit(1);
       }
-      printf("METHOD: %s\n", http_request->method);
-      printf("PATH: %s\n", http_request->path);
+      send_response(incoming_fd, http_request->path);
 
       free_http_request(http_request);
       close(incoming_fd);
