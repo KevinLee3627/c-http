@@ -3,9 +3,9 @@
 
 struct Tokenizer
 {
-  char *buffer;    // String to tokenize
-  char *token;     // Token returned from get_token
-  char *token_end; // Pointer to end of token, returned from get_token
+  char *buffer;           // String to tokenize
+  char *token;            // Token returned from get_token
+  char *remaining_buffer; // Pointer to end of token, returned from get_token
 };
 
 struct Tokenizer *init_tokenizer(char *str);

@@ -10,7 +10,7 @@ struct Tokenizer *init_tokenizer(char *str)
   struct Tokenizer *tokenizer = malloc(sizeof(struct Tokenizer));
   tokenizer->buffer = str;
   tokenizer->token = NULL;
-  tokenizer->token_end = NULL;
+  tokenizer->remaining_buffer = NULL;
   return tokenizer;
 }
 
@@ -36,6 +36,6 @@ int get_token(struct Tokenizer *tokenizer, const char *delimiter)
 
   // Return the location of delimiter to tokenizer
   // so user can search through rest of buffer
-  tokenizer->token_end = end_ptr + search_len;
+  tokenizer->remaining_buffer = end_ptr + search_len;
   return 0;
 }
