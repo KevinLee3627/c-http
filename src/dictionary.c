@@ -43,8 +43,16 @@ void insert(struct HashTable *hash_table, char *key, char *value)
   if (new_node == NULL)
     return;
 
-  new_node->key = key;
-  new_node->value = value;
+  size_t key_len = strlen(key);
+  new_node->key = malloc(key_len + 1);
+  strncpy(new_node->key, key, key_len);
+  new_node->key[key_len] = '\0';
+
+  size_t value_len = strlen(value);
+  new_node->value = malloc(value_len + 1);
+  strncpy(new_node->value, value, value_len);
+  new_node->value[value_len] = '\0';
+
   new_node->next = NULL;
 
   unsigned long index = hash(key);
@@ -81,6 +89,8 @@ void free_table(struct HashTable *hash_table)
     while (hash_table->buckets[i] != NULL)
     {
       struct Node *tmp = hash_table->buckets[i]->next;
+      free(hash_table->buckets[i]->key);
+      free(hash_table->buckets[i]->value);
       free(hash_table->buckets[i]);
       hash_table->buckets[i] = tmp;
     }
