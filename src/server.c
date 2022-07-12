@@ -24,6 +24,92 @@
 
 int max_forks = MAX_FORKS;
 int current_forks = 0;
+
+int create_socket(char *port)
+{
+  struct addrinfo hints;
+  memset(&hints, 0, sizeof hints);
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_flags = AI_PASSIVE; // fill in my own IP
+
+  struct addrinfo *gai_res = NULL; // getaddrinfo_response
+  int gai_status = getaddrinfo(NULL, port, &hints, &gai_res);
+  if (gai_status != 0)
+  {
+    perror("getaddrinfo");
+    return 1;
+  }
+
+  // socket() creates a socket and returns the socket file descriptor
+  int listening_socket_fd =
+      socket(gai_res->ai_family, gai_res->ai_socktype, gai_res->ai_protocol);
+  if (listening_socket_fd == -1)
+  {
+    freeaddrinfo(gai_res);
+    perror("socket");
+    return 1;
+  }
+
+  // Allows the reuse of this port, avoiding 'address already in use' error in bind()
+  int yes = 1;
+  if (setsockopt(listening_socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes) == -1)
+  {
+    perror("error w/ setsockopt: ");
+    exit(1);
+  }
+
+  if (bind(listening_socket_fd, gai_res->ai_addr, gai_res->ai_addrlen) == -1)
+  {
+    close(listening_socket_fd);
+    freeaddrinfo(gai_res);
+    perror("bind");
+    return 1;
+  }
+
+  freeaddrinfo(gai_res);
+
+  if (listen(listening_socket_fd, BACKLOG_COUNT) == -1)
+  {
+    perror("listen");
+    return 1;
+  }
+
+  return listening_socket_fd;
+}
+
+SSL_CTX *create_context(void)
+{
+  const SSL_METHOD *method;
+  SSL_CTX *ctx;
+
+  method = TLS_server_method();
+  ctx = SSL_CTX_new(method);
+  if (ctx == NULL)
+  {
+    perror("Unable to create SSL context");
+    ERR_print_errors_fp(stderr);
+    exit(EXIT_FAILURE);
+  }
+
+  return ctx;
+}
+
+void configure_server_context(SSL_CTX *ctx)
+{
+  if (SSL_CTX_use_certificate_chain_file(ctx, "./ssl/public.pem") <= 0)
+  {
+    ERR_print_errors_fp(stderr);
+    exit(EXIT_FAILURE);
+  }
+
+  if (SSL_CTX_use_PrivateKey_file(ctx, "./ssl/key.pem", NULL) <= 0)
+  {
+    ERR_print_errors_fp(stderr);
+    exit(EXIT_FAILURE);
+  }
+}
+
 int main(int argc, char **argv)
 {
   if (argc != 2)
@@ -48,54 +134,7 @@ int main(int argc, char **argv)
     }
   }
 
-  struct addrinfo hints;
-  memset(&hints, 0, sizeof hints);
-  hints.ai_family = AF_UNSPEC;
-  hints.ai_socktype = SOCK_STREAM;
-  hints.ai_flags = AI_PASSIVE; // fill in my own IP
-
-  struct addrinfo *gai_res = NULL; // getaddrinfo_response
-  int gai_status = getaddrinfo(NULL, port, &hints, &gai_res);
-  if (gai_status != 0)
-  {
-    perror("getaddrinfo");
-    return 1;
-  }
-
-  // socket() creates a socket and returns the socket file descriptor
-  int listening_socket_fd =
-      socket(gai_res->ai_family, gai_res->ai_socktype, gai_res->ai_protocol);
-  if (listening_socket_fd == -1)
-  {
-    freeaddrinfo(gai_res);
-    perror("error w/ socket");
-    return 1;
-  }
-
-  // Allows the reuse of this port, avoiding 'address already in use' error in bind()
-  int yes = 1;
-  if (setsockopt(listening_socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes) == -1)
-  {
-    perror("error w/ setsockopt: ");
-    exit(1);
-  }
-
-  if (bind(listening_socket_fd, gai_res->ai_addr, gai_res->ai_addrlen) == -1)
-  {
-    close(listening_socket_fd);
-    freeaddrinfo(gai_res);
-    perror("error w/ bind:");
-    return 1;
-  }
-
-  freeaddrinfo(gai_res);
-
-  int listen_status = listen(listening_socket_fd, BACKLOG_COUNT);
-  if (listen_status == -1)
-  {
-    perror("error w/ listen:");
-    return 1;
-  }
+  int listening_socket_fd = create_socket(port);
 
   int incoming_fd;
 
