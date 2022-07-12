@@ -1,7 +1,10 @@
 #include <arpa/inet.h>
+#include <ctype.h>
 #include <errno.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,7 +12,6 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <ctype.h>
 #include <unistd.h>
 
 #include "parse_request.h"
