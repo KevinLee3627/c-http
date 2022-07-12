@@ -103,7 +103,7 @@ void configure_server_context(SSL_CTX *ctx)
     exit(EXIT_FAILURE);
   }
 
-  if (SSL_CTX_use_PrivateKey_file(ctx, "./ssl/key.pem", NULL) <= 0)
+  if (SSL_CTX_use_PrivateKey_file(ctx, "./ssl/key.pem", SSL_FILETYPE_PEM) <= 0)
   {
     ERR_print_errors_fp(stderr);
     exit(EXIT_FAILURE);
@@ -134,19 +134,26 @@ int main(int argc, char **argv)
     }
   }
 
+  // Create SSL context;
+  SSL_CTX *ssl_ctx = NULL;
+  ssl_ctx = create_context();
+  configure_server_context(ssl_ctx);
+
+  SSL *ssl = NULL;
+
   int listening_socket_fd = create_socket(port);
 
-  int incoming_fd;
+  int incoming_socket;
 
   struct sockaddr_storage incoming_addr;
   socklen_t incoming_addr_size = sizeof incoming_addr;
 
   while (1)
   {
-    incoming_fd =
+    incoming_socket =
         accept(listening_socket_fd, (struct sockaddr *)&incoming_addr,
                &incoming_addr_size);
-    if (incoming_fd == -1)
+    if (incoming_socket == -1)
     {
       perror("error w/ accept:");
       return 1;
@@ -154,19 +161,30 @@ int main(int argc, char **argv)
 
     char ipstr[INET6_ADDRSTRLEN + 1];
     inet_ntop(incoming_addr.ss_family, (struct sockaddr *)&incoming_addr, ipstr, sizeof(char) * (INET6_ADDRSTRLEN) + 1);
-    printf("Connection from %s\n", ipstr);
+    printf("TCP Connection from %s\n", ipstr);
+
+    ssl = SSL_new(ssl_ctx);
+    SSL_set_fd(ssl, incoming_socket);
+
+    if (SSL_accept(ssl) <= 0)
+    {
+      ERR_print_errors_fp(stderr);
+      continue;
+    }
+
+    printf("SSL Connection accepted\n");
 
     pid_t child_pid = fork();
     if (child_pid < 0)
     {
-      close(incoming_fd);
+      close(incoming_socket);
     }
     else if (child_pid == 0)
     {
       // This is the child process
       const size_t req_buffer_length = sizeof(char) * 2000;
       char *request_buffer = malloc(req_buffer_length);
-      ssize_t bytes_received = recv(incoming_fd, request_buffer, req_buffer_length - 1, 0);
+      ssize_t bytes_received = recv(incoming_socket, request_buffer, req_buffer_length - 1, 0);
       if (bytes_received == -1)
       {
         free(request_buffer);
@@ -177,7 +195,7 @@ int main(int argc, char **argv)
       {
         free(request_buffer);
         printf("Connection closed by peer.\n");
-        close(incoming_fd);
+        close(incoming_socket);
         exit(0);
       }
 
@@ -187,15 +205,17 @@ int main(int argc, char **argv)
       {
         exit(1);
       }
-      send_response(incoming_fd, http_request->path);
+      send_response(incoming_socket, http_request->path);
       free_http_request(http_request);
-      close(incoming_fd);
+      SSL_shutdown(ssl);
+      SSL_free(ssl);
+      close(incoming_socket);
       exit(0); // Exits the forked child process
     }
     else
     {
       // This is the parent process, no need to care about incoming socket
-      close(incoming_fd);
+      close(incoming_socket);
       current_forks++;
     }
 
