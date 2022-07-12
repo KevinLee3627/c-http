@@ -184,7 +184,8 @@ int main(int argc, char **argv)
       // This is the child process
       const size_t req_buffer_length = sizeof(char) * 2000;
       char *request_buffer = malloc(req_buffer_length);
-      ssize_t bytes_received = recv(incoming_socket, request_buffer, req_buffer_length - 1, 0);
+      // ssize_t bytes_received = recv(incoming_socket, request_buffer, req_buffer_length - 1, 0);
+      int bytes_received = SSL_read(ssl, request_buffer, req_buffer_length);
       if (bytes_received == -1)
       {
         free(request_buffer);
@@ -198,6 +199,7 @@ int main(int argc, char **argv)
         close(incoming_socket);
         exit(0);
       }
+      request_buffer[req_buffer_length - 1] = '\0';
 
       struct HTTPRequest *http_request = init_http_request();
       int parse_req_status = parse_request(request_buffer, http_request);
