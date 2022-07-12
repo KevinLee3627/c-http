@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -9,16 +11,17 @@
 #define ASSET_DIR "./pages"
 
 // send() has a change to not send all the bytes - this ensures it does
-int send_data(int incoming_fd, void *data, long data_size)
+int send_data(SSL *ssl, void *data, int data_size)
 {
   unsigned char *pdata = (unsigned char *)data;
-  long numSent;
+  int numSent;
 
   while (data_size > 0)
   {
-    numSent = send(incoming_fd, pdata, (size_t)data_size, 0);
-    if (numSent == -1)
+    numSent = SSL_write(ssl, pdata, data_size);
+    if (numSent <= 0)
     {
+      ERR_print_errors_fp(stderr);
       return -1;
     }
     pdata += numSent;
@@ -27,23 +30,23 @@ int send_data(int incoming_fd, void *data, long data_size)
   return 0;
 }
 
-void send_404(int incoming_fd)
+void send_404(SSL *ssl)
 {
   // TODO: ALso please find better names and don't hardcode these values
   // TODO: How to generalize send_response so we can easily send the 404 page?
 
   printf("File not found\n");
   char *response = "HTTP/1.0 404 Not Found\r\nContent-Length: 826\r\nContent-Type: text/html\r\n";
-  send_data(incoming_fd, response, (long)strlen(response));
+  send_data(ssl, response, (long)strlen(response));
   int data_404_size = 826;
   FILE *file_404 = fopen("./pages/404.html", "rb");
   unsigned char file_data_404[data_404_size];
   fread(file_data_404, (size_t)(data_404_size), 1, file_404); // Throw data into file_data
-  send_data(incoming_fd, file_data_404, data_404_size);
+  send_data(ssl, file_data_404, data_404_size);
   fclose(file_404);
 }
 
-void send_response(int incoming_fd, char *path)
+void send_response(SSL *ssl, char *path)
 {
   if (strcmp(path, "/") == 0)
   {
@@ -58,7 +61,7 @@ void send_response(int incoming_fd, char *path)
   if (strstr(file_path, "..") != NULL)
   {
     printf("Stay out!\n");
-    send_404(incoming_fd);
+    send_404(ssl);
     exit(0);
   }
   // libmagic didn't work, so here's a temp? solution...
@@ -99,7 +102,7 @@ void send_response(int incoming_fd, char *path)
   free(file_path);
   if (file == NULL)
   {
-    send_404(incoming_fd);
+    send_404(ssl);
     return;
   }
   struct stat file_stats;
@@ -109,17 +112,17 @@ void send_response(int incoming_fd, char *path)
 
   char *status_line = "HTTP/1.0 200 OK\r\n";
   // DON'T SEND strlen(...) + 1 bytes!!! the +1 sends a null terminator, which makes things weird
-  send_data(incoming_fd, status_line, (long)strlen(status_line));
+  send_data(ssl, status_line, (long)strlen(status_line));
 
   int headers_size = snprintf(NULL, 0, "Content-Length: %li\r\nContent-Type: %s\r\n", file_size, mime);
   char headers[headers_size + 1];
   snprintf(headers, (size_t)(headers_size + 1), "Content-Length: %li\r\nContent-Type: %s\r\n", file_size, mime);
-  send_data(incoming_fd, headers, (long)strlen(headers));
+  send_data(ssl, headers, (long)strlen(headers));
 
-  send_data(incoming_fd, "\r\n", 2);
+  send_data(ssl, "\r\n", 2);
   unsigned char file_data[file_size];
   fread(file_data, (size_t)(file_size), 1, file); // Throw data into file_data
-  send_data(incoming_fd, file_data, file_size);
+  send_data(ssl, file_data, file_size);
   fclose(file);
 
   printf("RESPONSE:\n%s%s", status_line, headers);

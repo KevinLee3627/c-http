@@ -186,16 +186,22 @@ int main(int argc, char **argv)
       char *request_buffer = malloc(req_buffer_length);
       // ssize_t bytes_received = recv(incoming_socket, request_buffer, req_buffer_length - 1, 0);
       int bytes_received = SSL_read(ssl, request_buffer, req_buffer_length);
-      if (bytes_received == -1)
+      if (bytes_received < 0)
       {
         free(request_buffer);
-        perror("error w/ recv:");
+        perror("error w/ SSL_read");
+        // TOOD: Better way to shutdown/free ssl w/o copy pasting?
+        SSL_shutdown(ssl);
+        SSL_free(ssl);
+        ERR_print_errors_fp(stderr);
         exit(1);
       }
       if (bytes_received == 0)
       {
         free(request_buffer);
         printf("Connection closed by peer.\n");
+        SSL_shutdown(ssl);
+        SSL_free(ssl);
         close(incoming_socket);
         exit(0);
       }
@@ -207,7 +213,7 @@ int main(int argc, char **argv)
       {
         exit(1);
       }
-      send_response(incoming_socket, http_request->path);
+      send_response(ssl, http_request->path);
       free_http_request(http_request);
       SSL_shutdown(ssl);
       SSL_free(ssl);
