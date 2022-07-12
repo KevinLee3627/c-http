@@ -58,6 +58,7 @@ void send_response(int incoming_fd, char *path)
   if (strstr(file_path, "..") != NULL)
   {
     printf("Stay out!\n");
+    send_404(incoming_fd);
     exit(0);
   }
   // libmagic didn't work, so here's a temp? solution...
