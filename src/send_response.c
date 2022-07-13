@@ -37,7 +37,7 @@ void send_404(SSL *ssl)
 
   printf("File not found\n");
   char *response = "HTTP/1.0 404 Not Found\r\nContent-Length: 826\r\nContent-Type: text/html\r\n";
-  send_data(ssl, response, (long)strlen(response));
+  send_data(ssl, response, (int)strlen(response));
   int data_404_size = 826;
   FILE *file_404 = fopen("./pages/404.html", "rb");
   unsigned char file_data_404[data_404_size];
@@ -112,17 +112,17 @@ void send_response(SSL *ssl, char *path)
 
   char *status_line = "HTTP/1.0 200 OK\r\n";
   // DON'T SEND strlen(...) + 1 bytes!!! the +1 sends a null terminator, which makes things weird
-  send_data(ssl, status_line, (long)strlen(status_line));
+  send_data(ssl, status_line, (int)strlen(status_line));
 
   int headers_size = snprintf(NULL, 0, "Content-Length: %li\r\nContent-Type: %s\r\n", file_size, mime);
   char headers[headers_size + 1];
   snprintf(headers, (size_t)(headers_size + 1), "Content-Length: %li\r\nContent-Type: %s\r\n", file_size, mime);
-  send_data(ssl, headers, (long)strlen(headers));
+  send_data(ssl, headers, (int)strlen(headers));
 
   send_data(ssl, "\r\n", 2);
   unsigned char file_data[file_size];
   fread(file_data, (size_t)(file_size), 1, file); // Throw data into file_data
-  send_data(ssl, file_data, file_size);
+  send_data(ssl, file_data, (int)file_size);
   fclose(file);
 
   printf("RESPONSE:\n%s%s", status_line, headers);

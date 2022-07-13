@@ -191,7 +191,7 @@ int main(int argc, char **argv)
       const size_t req_buffer_length = sizeof(char) * 2000;
       char *request_buffer = malloc(req_buffer_length);
       // ssize_t bytes_received = recv(incoming_socket, request_buffer, req_buffer_length - 1, 0);
-      int bytes_received = SSL_read(ssl, request_buffer, req_buffer_length);
+      int bytes_received = SSL_read(ssl, request_buffer, (int)req_buffer_length);
       if (bytes_received < 0)
       {
         free(request_buffer);
