@@ -151,90 +151,86 @@ int main(int argc, char **argv)
 
   struct sockaddr_storage incoming_addr;
   socklen_t incoming_addr_size = sizeof incoming_addr;
-  while (1)
+  incoming_socket =
+      accept(listening_socket_fd, (struct sockaddr *)&incoming_addr,
+             &incoming_addr_size);
+  if (incoming_socket == -1)
   {
-    incoming_socket =
-        accept(listening_socket_fd, (struct sockaddr *)&incoming_addr,
-               &incoming_addr_size);
-    if (incoming_socket == -1)
+    perror("error w/ accept:");
+    return 1;
+  }
+
+  char ipstr[INET6_ADDRSTRLEN + 1];
+  inet_ntop(incoming_addr.ss_family, (struct sockaddr *)&incoming_addr, ipstr, sizeof(char) * (INET6_ADDRSTRLEN) + 1);
+  printf("TCP Connection from %s\n", ipstr);
+
+  SSL *ssl = NULL;
+  ssl = SSL_new(ssl_ctx);
+  SSL_set_fd(ssl, incoming_socket);
+
+  if (SSL_accept(ssl) <= 0)
+  {
+    ERR_print_errors_fp(stderr);
+  }
+
+  printf("SSL Connection accepted\n");
+
+  pid_t child_pid = fork();
+  if (child_pid < 0)
+  {
+    close(incoming_socket);
+  }
+  else if (child_pid == 0)
+  {
+    // This is the child process
+    const size_t req_buffer_length = sizeof(char) * 2000;
+    char *request_buffer = malloc(req_buffer_length);
+    // ssize_t bytes_received = recv(incoming_socket, request_buffer, req_buffer_length - 1, 0);
+    int bytes_received = SSL_read(ssl, request_buffer, (int)req_buffer_length);
+    if (bytes_received < 0)
     {
-      perror("error w/ accept:");
-      return 1;
-    }
-
-    char ipstr[INET6_ADDRSTRLEN + 1];
-    inet_ntop(incoming_addr.ss_family, (struct sockaddr *)&incoming_addr, ipstr, sizeof(char) * (INET6_ADDRSTRLEN) + 1);
-    printf("TCP Connection from %s\n", ipstr);
-
-    SSL *ssl = NULL;
-    ssl = SSL_new(ssl_ctx);
-    SSL_set_fd(ssl, incoming_socket);
-
-    if (SSL_accept(ssl) <= 0)
-    {
-      ERR_print_errors_fp(stderr);
-      continue;
-    }
-
-    printf("SSL Connection accepted\n");
-
-    pid_t child_pid = fork();
-    if (child_pid < 0)
-    {
-      close(incoming_socket);
-    }
-    else if (child_pid == 0)
-    {
-      // This is the child process
-      const size_t req_buffer_length = sizeof(char) * 2000;
-      char *request_buffer = malloc(req_buffer_length);
-      // ssize_t bytes_received = recv(incoming_socket, request_buffer, req_buffer_length - 1, 0);
-      int bytes_received = SSL_read(ssl, request_buffer, (int)req_buffer_length);
-      if (bytes_received < 0)
-      {
-        free(request_buffer);
-        ssl_cleanup(ssl);
-        ERR_print_errors_fp(stderr);
-        exit(1);
-      }
-      if (bytes_received == 0)
-      {
-        free(request_buffer);
-        printf("Connection closed by peer.\n");
-        ssl_cleanup(ssl);
-        close(incoming_socket);
-        exit(0);
-      }
-      request_buffer[req_buffer_length - 1] = '\0';
-
-      struct HTTPRequest *http_request = init_http_request();
-      int parse_req_status = parse_request(request_buffer, http_request);
-      if (parse_req_status > 0)
-      {
-        exit(1);
-      }
-      send_response(ssl, http_request->path);
-
-      free_http_request(http_request);
+      free(request_buffer);
       ssl_cleanup(ssl);
-
-      close(incoming_socket);
-      exit(0); // Exits the forked child process
+      ERR_print_errors_fp(stderr);
+      exit(1);
     }
-    else
+    if (bytes_received == 0)
     {
-      // This is the parent process, no need to care about incoming socket
+      free(request_buffer);
+      printf("Connection closed by peer.\n");
+      ssl_cleanup(ssl);
       close(incoming_socket);
-      current_forks++;
+      exit(0);
     }
+    request_buffer[req_buffer_length - 1] = '\0';
 
-    // Delete finished sub processes if (current_forks >= max_forks)
-    if (current_forks >= max_forks)
+    struct HTTPRequest *http_request = init_http_request();
+    int parse_req_status = parse_request(request_buffer, http_request);
+    if (parse_req_status > 0)
     {
-      while (waitpid(-1, NULL, WNOHANG) > 0)
-      {
-        current_forks--;
-      }
+      exit(1);
+    }
+    send_response(ssl, http_request->path);
+
+    free_http_request(http_request);
+    ssl_cleanup(ssl);
+
+    close(incoming_socket);
+    exit(0); // Exits the forked child process
+  }
+  else
+  {
+    // This is the parent process, no need to care about incoming socket
+    close(incoming_socket);
+    current_forks++;
+  }
+
+  // Delete finished sub processes if (current_forks >= max_forks)
+  if (current_forks >= max_forks)
+  {
+    while (waitpid(-1, NULL, WNOHANG) > 0)
+    {
+      current_forks--;
     }
   }
   close(listening_socket_fd);
