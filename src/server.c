@@ -140,12 +140,10 @@ int main(int argc, char **argv)
     }
   }
 
-  // Create SSL context;
+  // Create SSL context
   SSL_CTX *ssl_ctx = NULL;
   ssl_ctx = create_context();
   configure_server_context(ssl_ctx);
-
-  SSL *ssl = NULL;
 
   int listening_socket_fd = create_socket(port);
 
@@ -153,7 +151,6 @@ int main(int argc, char **argv)
 
   struct sockaddr_storage incoming_addr;
   socklen_t incoming_addr_size = sizeof incoming_addr;
-
   while (1)
   {
     incoming_socket =
@@ -169,6 +166,7 @@ int main(int argc, char **argv)
     inet_ntop(incoming_addr.ss_family, (struct sockaddr *)&incoming_addr, ipstr, sizeof(char) * (INET6_ADDRSTRLEN) + 1);
     printf("TCP Connection from %s\n", ipstr);
 
+    SSL *ssl = NULL;
     ssl = SSL_new(ssl_ctx);
     SSL_set_fd(ssl, incoming_socket);
 
@@ -195,7 +193,6 @@ int main(int argc, char **argv)
       if (bytes_received < 0)
       {
         free(request_buffer);
-        perror("error w/ SSL_read");
         ssl_cleanup(ssl);
         ERR_print_errors_fp(stderr);
         exit(1);
@@ -217,8 +214,10 @@ int main(int argc, char **argv)
         exit(1);
       }
       send_response(ssl, http_request->path);
+
       free_http_request(http_request);
       ssl_cleanup(ssl);
+
       close(incoming_socket);
       exit(0); // Exits the forked child process
     }
@@ -229,7 +228,7 @@ int main(int argc, char **argv)
       current_forks++;
     }
 
-    // Delete finished sub processes
+    // Delete finished sub processes if (current_forks >= max_forks)
     if (current_forks >= max_forks)
     {
       while (waitpid(-1, NULL, WNOHANG) > 0)
