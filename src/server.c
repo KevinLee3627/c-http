@@ -97,7 +97,7 @@ SSL_CTX *create_context(void)
 
 void configure_server_context(SSL_CTX *ctx)
 {
-  if (SSL_CTX_use_certificate_chain_file(ctx, "./ssl/public.pem") <= 0)
+  if (SSL_CTX_use_certificate_file(ctx, "./ssl/public.pem", SSL_FILETYPE_PEM) <= 0)
   {
     ERR_print_errors_fp(stderr);
     exit(EXIT_FAILURE);
@@ -108,6 +108,12 @@ void configure_server_context(SSL_CTX *ctx)
     ERR_print_errors_fp(stderr);
     exit(EXIT_FAILURE);
   }
+}
+
+void ssl_cleanup(SSL *ssl)
+{
+  SSL_shutdown(ssl);
+  SSL_free(ssl);
 }
 
 int main(int argc, char **argv)
@@ -190,9 +196,7 @@ int main(int argc, char **argv)
       {
         free(request_buffer);
         perror("error w/ SSL_read");
-        // TOOD: Better way to shutdown/free ssl w/o copy pasting?
-        SSL_shutdown(ssl);
-        SSL_free(ssl);
+        ssl_cleanup(ssl);
         ERR_print_errors_fp(stderr);
         exit(1);
       }
@@ -200,8 +204,7 @@ int main(int argc, char **argv)
       {
         free(request_buffer);
         printf("Connection closed by peer.\n");
-        SSL_shutdown(ssl);
-        SSL_free(ssl);
+        ssl_cleanup(ssl);
         close(incoming_socket);
         exit(0);
       }
@@ -215,8 +218,7 @@ int main(int argc, char **argv)
       }
       send_response(ssl, http_request->path);
       free_http_request(http_request);
-      SSL_shutdown(ssl);
-      SSL_free(ssl);
+      ssl_cleanup(ssl);
       close(incoming_socket);
       exit(0); // Exits the forked child process
     }
