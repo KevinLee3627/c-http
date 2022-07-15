@@ -211,8 +211,12 @@ int main(int argc, char **argv)
       int parse_req_status = parse_request(request_buffer, http_request);
       if (parse_req_status > 0)
       {
+        free_http_request(http_request);
+        ssl_cleanup(ssl);
+        close(incoming_socket);
         exit(1);
       }
+
       send_response(ssl, http_request->path);
 
       free_http_request(http_request);
