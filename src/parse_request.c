@@ -27,7 +27,7 @@ int parse_request(char *req_buffer, struct HTTPRequest *http_request)
     char *header_line = request_tokenizer->token;
     if (strcmp(header_line, "") == 0)
     {
-      printf("end of headers\n");
+      // End of headers
       free(header_line);
       break;
     }

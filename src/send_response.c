@@ -125,6 +125,6 @@ void send_response(SSL *ssl, char *path)
   send_data(ssl, file_data, (int)file_size);
   fclose(file);
 
-  printf("RESPONSE:\n%s%s", status_line, headers);
+  // printf("RESPONSE:\n%s%s", status_line, headers);
   return;
 }
