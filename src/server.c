@@ -97,13 +97,25 @@ SSL_CTX *create_context(void)
 
 void configure_server_context(SSL_CTX *ctx)
 {
-  if (SSL_CTX_use_certificate_file(ctx, "./ssl/public.pem", SSL_FILETYPE_PEM) <= 0)
+  char *cert_file = getenv("SERVER_CERT_CHAIN_FILE_PATH");
+  if (cert_file == NULL)
+  {
+    printf("Cannot find cert file at specified path.\n");
+    exit(1);
+  }
+  if (SSL_CTX_use_certificate_chain_file(ctx, cert_file) <= 0)
   {
     ERR_print_errors_fp(stderr);
     exit(EXIT_FAILURE);
   }
 
-  if (SSL_CTX_use_PrivateKey_file(ctx, "./ssl/key.pem", SSL_FILETYPE_PEM) <= 0)
+  char *key_file = getenv("SERVER_PRIVATE_KEY_PATH");
+  if (key_file == NULL)
+  {
+    printf("Cannot find private key file at specified path.\n");
+    exit(1);
+  }
+  if (SSL_CTX_use_PrivateKey_file(ctx, key_file, SSL_FILETYPE_PEM) <= 0)
   {
     ERR_print_errors_fp(stderr);
     exit(EXIT_FAILURE);
@@ -139,7 +151,6 @@ int main(int argc, char **argv)
       return 1;
     }
   }
-
   // Create SSL context
   SSL_CTX *ssl_ctx = NULL;
   ssl_ctx = create_context();
