@@ -109,7 +109,7 @@ void configure_server_context(SSL_CTX *ctx)
     exit(EXIT_FAILURE);
   }
 
-  char *key_file = getenv("SERVER_PRIVATE_KEY_PATH");
+  char *key_file = getenv("SERVER_PRIVATE_KEY_FILE_PATH");
   if (key_file == NULL)
   {
     printf("Cannot find private key file at specified path.\n");
