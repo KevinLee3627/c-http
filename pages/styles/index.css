@@ -58,11 +58,6 @@ main {
   height: 150px;
   width: 150px;
   position: relative;
-  /* background-image: url('./bubble_1.png');
-  background-size: cover; */
-  /* display: flex;
-  justify-content: center;
-  align-items: center; */
 }
   .bubble-container img {
     max-width: 100%;
@@ -74,6 +69,10 @@ main {
     top: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
+  }
+
+  .bubble-contact {
+    left: 20%;
   }
 
 .main-right > img {
