@@ -16,7 +16,7 @@
 <body>
   <header>
     <figure>
-      <img src="./shark.png" alt="An image of Delphy, the site's mascot" title="Delphy" />
+      <img src="./assets/shark.png" alt="An image of Delphy, the site's mascot" title="Delphy" />
     </figure>
     <div class="marquee-container">
       <marquee class="text text-center" behavior="alternate">
@@ -30,18 +30,18 @@
     <div class="main-center">
       <a href="/about" class="bubble-container">
         <span>about</span>
-        <img src="./bubble_1.png" alt="bubble">
+        <img src="./assets/bubble_1.png" alt="bubble">
       </a>
     </div>
     <div class="main-right">
-      <img src="./seaweed_right.png" alt="Three crudely drawn pieces of seaweed" title="Seaweed">
+      <img src="./assets/seaweed_right.png" alt="Three crudely drawn pieces of seaweed" title="Seaweed">
     </div>
   </main>
   <script>
     // zero dependencies blazing fast
     const img = document.querySelector("header > figure > img");
     img.addEventListener('click', (e) => {
-      e.target.src = './shark_happy.png'
+      e.target.src = './assets/shark_happy.png'
     })
   </script>
 </body>
