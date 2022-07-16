@@ -5,15 +5,67 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="about.css">
   <title>about</title>
 </head>
 
 <body>
   <header></header>
   <article>
-    <h1 class="text text-center">about this site</h1>
-    <p class="text">Test</p>
+    <h1 class="text-center">about...</h1>
+    <details>
+      <summary>this site</summary>
+      <article>
+        <p>
+          i tried to keep things as simple as possible. this means:
+        </p>
+        <ul>
+          <li>vanilla html, css, js</li>
+          <li>web server written in C<sup>1</sup></li>
+          <li>art drawn in Paint</li>
+        </ul>
+        <p>which in turn, means:</p>
+        <ul>
+          <li>no dependencies or packages to deal with<sup>2</sup></li>
+          <li>no complicated setup to run server<sup>3</sup>. just one executable</li>
+          <li>no reliance on external platforms/providers<sup>4</sup></li>
+        </ul>
+        <p>and most importantly:</p>
+        <ul>
+          <li>blazingly fast</li>
+          <li>2kb gzipped</li>
+          <li>made with love</li>
+        </ul>
+        <p>but really:</p>
+        <ul>
+          <li>a fun project, and</li>
+          <li>a good learning experience!</li>
+        </ul>
+        <p>
+          and that's all there is to it. if you're interested in more details,
+          feel free to view the <a href="https://github.com/KevinLee3627/c-http">github repo</a>
+          or email me at kevin@kevinjlee.xyz
+        </p>
+        <hr>
+        <footer class="footnotes">
+          <p><sup>1</sup>'as simple as possible'</p>
+          <p><sup>2</sup>almost - the web server needs the libssl-dev package.
+            and if you try to tell me about all the other stuff you need to install onto the OS
+            i'll just stick my fingers in my ears and go la-la-la until you go away
+          </p>
+          <p><sup>3</sup>see attitude exhibited by footnote 2</p>
+          <p><sup>4</sup>...except DigitalOcean<sup>5</sup>...</p>
+          <p><sup>5</sup>see attitude exhibited by footnote 3</p>
+          <p><sup>6</sup>what a fun word - look it up!</p>
+        </footer>
+      </article>
+    </details>
+    <details>
+      <summary>me</summary>
+      <article>
+        <p>hi, i'm kevin</p>
+      </article>
+    </details>
   </article>
 </body>
 
