@@ -5,49 +5,12 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="index.css">
   <title>kevin</title>
 </head>
 
 <style>
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
-  }
 
-  header,
-  main,
-  hr {
-    max-width: 500px;
-    margin: 0 auto;
-  }
-
-  .marquee-container {
-    border: 1px solid black;
-    border-top: none;
-    border-bottom: none;
-    display: flex;
-    align-items: center;
-  }
-
-  .marquee-container marquee span:first-child {
-    padding: 0 3px 0 3px;
-  }
-
-  .text {
-    /* font-family: "Lucida Console", monospace; */
-    font-family: "Consolas", monospace;
-    font-size: 13px;
-  }
-
-  .center {
-    text-align: center;
-  }
-
-  img {
-    display: block;
-    margin: 0 auto;
-  }
 </style>
 
 <body>
@@ -56,13 +19,23 @@
       <img src="./shark.png" alt="An image of Delphy, the site's mascot" title="Delphy" />
     </figure>
     <div class="marquee-container">
-      <marquee class="text center" behavior="alternate">
+      <marquee class="text text-center" behavior="alternate">
         <span>welcome to my website</span>
       </marquee>
     </div>
   </header>
   <main>
-    <p></p>
+    <div class="main-left">
+    </div>
+    <div class="main-center">
+      <a href="/about" class="bubble-container">
+        <span>about</span>
+        <img src="./bubble_1.png" alt="bubble">
+      </a>
+    </div>
+    <div class="main-right">
+      <img src="./seaweed_right.png" alt="Three crudely drawn pieces of seaweed" title="Seaweed">
+    </div>
   </main>
   <script>
     // zero dependencies blazing fast
