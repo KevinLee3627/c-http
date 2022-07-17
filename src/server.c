@@ -175,7 +175,7 @@ int main(int argc, char **argv)
 
     char ipstr[INET6_ADDRSTRLEN + 1];
     inet_ntop(incoming_addr.ss_family, (struct sockaddr *)&incoming_addr, ipstr, sizeof(char) * (INET6_ADDRSTRLEN) + 1);
-    printf("TCP Connection from %s\n", ipstr);
+    // printf("TCP Connection from %s\n", ipstr);
 
     pid_t child_pid = fork();
     if (child_pid < 0)

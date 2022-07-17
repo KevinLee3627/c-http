@@ -1,25 +1,3 @@
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html,body {
-  min-width: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-.text {
-  /* font-family: "Lucida Console", monospace; */
-  font-family: "Consolas", monospace;
-  font-size: 13px;
-}
-
-.text-center {
-  text-align: center;
-}
-
 img {
   display: block;
   margin: 0 auto;
@@ -71,10 +49,10 @@ main {
   }
 
   .bubble-about {
-    left: 40%;
+    left: 10%;
   }
   .bubble-contact {
-    left: 20%;
+    left: 40%;
   }
 
 .main-right > img {
