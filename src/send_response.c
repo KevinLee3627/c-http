@@ -58,7 +58,7 @@ void send_response(SSL *ssl, char *path)
   snprintf(file_path, (size_t)(file_path_size + 1), "%s%s", ASSET_DIR, path);
 
   // don't let people get cheeky and start poking around the filesystem
-  if (strstr(file_path, "..") != NULL)
+  if (strstr(file_path, "..") != NULL || strchr(file_path, '~') != NULL)
   {
     printf("Stay out!\n");
     send_404(ssl);
