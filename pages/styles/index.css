@@ -71,6 +71,9 @@ main {
     text-align: center;
   }
 
+  .bubble-about {
+    left: 40%;
+  }
   .bubble-contact {
     left: 20%;
   }
