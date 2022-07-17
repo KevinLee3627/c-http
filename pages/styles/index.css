@@ -26,7 +26,6 @@ img {
 }
 
 header,
-hr,
 .main-center {
   max-width: 500px;
   margin: 0 auto;
@@ -84,9 +83,20 @@ main {
 
 @media only screen and (min-width: 768px) {
   main {
-    grid-template-columns: 1fr auto 1fr;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
   }
   .main-left, .main-right {
     display: block;
+  }
+
+  .main-right > img {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+  }
+
+  .bubble-about {
+    left: 75%;
   }
 }
