@@ -46,6 +46,18 @@ void send_404(SSL *ssl)
   fclose(file_404);
 }
 
+void send_301(SSL *ssl, char *path)
+{
+  printf("Attempted access to http version\n");
+  char buffer[256];
+  char *response = "HTTP/1.0 301 Moved Permanently\r\nLocation: https://kevinjlee.xyz";
+  strcpy(buffer, response);
+  strcat(buffer, path);
+
+  int final_length = (int)strlen(buffer);
+  send_data(ssl, buffer, final_length);
+}
+
 void send_response(SSL *ssl, char *path)
 {
   if (strcmp(path, "/") == 0)

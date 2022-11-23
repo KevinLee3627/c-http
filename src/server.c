@@ -228,6 +228,12 @@ int main(int argc, char **argv)
         exit(1);
       }
 
+      if (strncmp(http_request->path, "https", 5) != 0 && strncmp(http_request->path, "http", 4) == 0)
+      {
+        // User is trying to access http, send redirect response
+        send_response(ssl, http_request->path);
+      }
+
       send_response(ssl, http_request->path);
 
       free_http_request(http_request);
