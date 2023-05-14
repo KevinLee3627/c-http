@@ -1,7 +1,22 @@
 img {
   display: block;
   margin: 0 auto;
+}
+
+.inverted {
   filter: invert();
+}
+
+.rotate90 {
+  transform: rotate(90deg);
+}
+
+.rotate270 {
+  transform: rotate(270deg);
+}
+
+.hand {
+  height: 300px;
 }
 
 header,
@@ -19,13 +34,10 @@ header,
   padding: 0 3px 0 3px;
 }
 
-main {
+.main_container {
   margin-top: 20px;
-}
-
-@media only screen and (min-width: 768px) {
-  main {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-  }
+  display: flex;
+  justify-content: space-around;
+  width: 50%;
+  margin: 0 auto;
 }
