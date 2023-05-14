@@ -4,14 +4,17 @@
   box-sizing: border-box;
 }
 
-html,body {
+html,
+body {
   min-width: 100%;
   margin: 0;
   padding: 0;
+  background-color: #000;
+  color: white;
 }
 
 .text {
-  font-family: "Consolas", monospace;
+  font-family: 'Consolas', monospace;
   font-size: 13px;
 }
 
