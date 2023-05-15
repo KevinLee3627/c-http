@@ -3,6 +3,45 @@ img {
   margin: 0 auto;
 }
 
+.inverted {
+  filter: invert();
+}
+
+.rotate90 {
+  transform: rotate(90deg);
+}
+
+.rotate270 {
+  transform: rotate(270deg);
+}
+
+.hand {
+  height: 300px;
+}
+
+a:any-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.image_container {
+  position: relative;
+  display: grid;
+  align-items: center;
+  justify-items: center; /* adjusted */
+}
+
+.image_container > span {
+  display: inline-block;
+  position: absolute;
+  z-index: 1000;
+  font-size: x-large;
+}
+
+.image_container > image {
+  position: absolute;
+}
+
 header,
 .main-center {
   max-width: 500px;
@@ -18,68 +57,10 @@ header,
   padding: 0 3px 0 3px;
 }
 
-main {
+.main_container {
   margin-top: 20px;
-}
-
-.main-left, .main-right {
-  display: none;
-  position: relative;
-}
-
-.main-center {
+  display: flex;
+  justify-content: space-between;
+  width: 40%;
   margin: 0 auto;
-  position: relative;
-}
-
-.bubble-container {
-  display: block;
-  height: 150px;
-  width: 150px;
-  position: relative;
-}
-  .bubble-container img {
-    max-width: 100%;
-  }
-  .bubble-container span {
-    display: block;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-  }
-
-  .bubble-about {
-    left: 20%;
-  }
-  .bubble-things {
-    left: 50%;
-  }
-  .bubble-contact {
-    left: 25%;
-  }
-
-.main-right > img {
-  float: right;
-}
-
-@media only screen and (min-width: 768px) {
-  main {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-  .main-left, .main-right {
-    display: block;
-  }
-
-  .main-right > img {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-  }
-
-  .bubble-about {
-    left: 15%;
-  }
 }
