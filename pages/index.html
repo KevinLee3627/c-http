@@ -17,7 +17,7 @@
 <body>
   <header>
     <figure>
-      <img src="./assets/shark.png" alt="An image of Delphy, the site's mascot" title="Delphy" />
+      <img src="./assets/shark_dark.png" alt="An image of Delphy, the site's mascot" title="Delphy" />
     </figure>
     <div class="marquee-container">
       <marquee class="text text-center" behavior="alternate">
@@ -26,24 +26,24 @@
     </div>
   </header>
   <main>
-    <div class="main-left">
-    </div>
-    <div class="main-center">
-      <a href="/about" class="bubble-container bubble-about">
-        <img src="./assets/bubble_about.png" alt="bubble">
+    <div class="main_container">
+      <a class="image_container" href="/about">
+        <span>ABOUT</span>
+        <img src="./assets/hand_rock.png" alt="A hand" class="hand inverted rotate90" />
       </a>
-      <a href="/things" class="bubble-container bubble-things">
-        <img src="./assets/bubble_things.png" alt="bubble">
+      <a class="image_container" href="/things">
+        <span>THINGS</span>
+        <img src="./assets/hand_paper.png" alt="A hand" class="hand inverted" style="transform: rotate(0deg);" />
       </a>
-      <a href="/contact" class="bubble-container bubble-contact">
-        <img src="./assets/bubble_contact.png" alt="bubble">
+      <a class="image_container" href="/contact">
+        <span>CONTACT</span>
+        <img src="./assets/hand_scissor.png" alt="A hand" class="hand inverted rotate270" />
       </a>
-      <img src="./assets/clam.png" alt="clam" title="it's a clam">
-    </div>
-    <div class="main-right">
-      <img src="./assets/seaweed_right.png" alt="Three crudely drawn pieces of seaweed" title="Seaweed">
     </div>
   </main>
+  <footer>
+    <img src="./assets/construction.gif" alt="">
+  </footer>
   <script>
     const img = document.querySelector("header > figure > img");
     img.addEventListener('click', (e) => {
