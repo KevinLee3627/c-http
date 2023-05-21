@@ -228,19 +228,27 @@ int main(int argc, char **argv)
         exit(1);
       }
 
-      if (strncmp(http_request->path, "https", 5) != 0 && strncmp(http_request->path, "http", 4) == 0)
+      if (strncmp(http_request->path, "https", 5) != 0)
       {
         // User is trying to access http, send redirect response
-        send_response(ssl, http_request->path);
+        send_301(ssl, http_request->path);
+
+        free_http_request(http_request);
+        ssl_cleanup(ssl);
+
+        close(incoming_socket);
+        exit(0); // Exits the forked child process
       }
+      else
+      {
+        send_response(ssl, http_request->path);
 
-      send_response(ssl, http_request->path);
+        free_http_request(http_request);
+        ssl_cleanup(ssl);
 
-      free_http_request(http_request);
-      ssl_cleanup(ssl);
-
-      close(incoming_socket);
-      exit(0); // Exits the forked child process
+        close(incoming_socket);
+        exit(0); // Exits the forked child process
+      }
     }
     else
     {
